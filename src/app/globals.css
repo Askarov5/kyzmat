@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-noto), "Noto Sans", sans-serif;
+  --color-paper: #e7edf2;
+  --color-sheet: #f7f9fb;
+  --color-ink: #172033;
+  --color-stamp: #1d4e89;
+  --color-line: #c3ced8;
+  --color-danger: #8c2f2f;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-stamp);
+  outline-offset: 2px;
+}
+
+.field {
+  min-height: 3rem;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: var(--color-sheet);
+  padding: 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.primary,
+.choice,
+.nav-item {
+  min-height: 3rem;
+  touch-action: manipulation;
+}
+
+.primary {
+  background: var(--color-stamp);
+  color: white;
+  font-weight: 600;
+  padding: 0 1rem;
+}
+
+.primary:disabled {
+  opacity: 0.55;
+}
+
+.choice {
+  width: 100%;
+  padding: 0 0.75rem;
+  text-align: left;
+  background: var(--color-sheet);
+}
+
+.choice[aria-selected="true"] {
+  background: #d9e6f2;
+  font-weight: 600;
+}
+
+.ticket {
+  background: var(--color-ink);
+  color: white;
+  padding: 1rem;
+}
+
+.ticket a {
+  color: white;
+}
+
+.list-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3rem;
+}
+
+.dock {
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--color-paper);
+  border-top: 1px solid var(--color-line);
+}
