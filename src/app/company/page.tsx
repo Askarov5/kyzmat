@@ -2,10 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createCompany } from "@/app/actions/session";
 import { AuthForm } from "@/components/auth-form";
-import { CompanyDetailsForm } from "@/components/company-details-form";
-import { InvitePanel } from "@/components/invite-panel";
+import { OwnerCompanyView } from "@/components/owner-company-view";
 import { PageFrame } from "@/components/page-frame";
-import { Notice } from "@/components/ui";
 import { getLocale } from "@/i18n/locale";
 import { messagesFor } from "@/i18n/messages";
 import { getMembership, getUserId, lookupMembership, requireMembership } from "@/lib/auth";
@@ -68,24 +66,14 @@ async function OwnerCompanyPage() {
       companyHref="/company"
       showSignOut
     >
-      <div className="flex flex-col gap-6">
-        <h1 className="text-pretty text-3xl font-semibold tracking-tight">
-          {messages.companySettings}
-        </h1>
-
-        <section className="flex flex-col gap-3">
-          <h2 className="border-b border-line pb-2 text-lg font-semibold">
-            {messages.companyDetails}
-          </h2>
-          <CompanyDetailsForm details={details} messages={messages} locale={membership.locale} />
-        </section>
-
-        {!inviteCode ? (
-          <Notice>{messages.saveFailed}</Notice>
-        ) : (
-          <InvitePanel inviteCode={inviteCode} members={members} messages={messages} />
-        )}
-      </div>
+      <OwnerCompanyView
+        tenantId={membership.tenantId}
+        inviteCode={inviteCode}
+        details={details}
+        members={members}
+        messages={messages}
+        locale={membership.locale}
+      />
     </PageFrame>
   );
 }

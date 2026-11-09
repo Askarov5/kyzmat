@@ -9,10 +9,12 @@ interface AuthScreenProps {
   locale: Locale;
   messages: Messages;
   failed: boolean;
+  next?: string | null;
 }
 
-export function AuthScreen({ intent, locale, messages, failed }: AuthScreenProps) {
+export function AuthScreen({ intent, locale, messages, failed, next = null }: AuthScreenProps) {
   const signingUp = intent === "signup";
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   return (
     <PageFrame locale={locale} messages={messages}>
@@ -26,12 +28,12 @@ export function AuthScreen({ intent, locale, messages, failed }: AuthScreenProps
           </p>
         </header>
 
-        <SignInPanel intent={intent} messages={messages} failed={failed} />
+        <SignInPanel intent={intent} messages={messages} failed={failed} next={next} />
 
         <p className="border-t border-line pt-4 text-sm text-mute">
           {signingUp ? (
             <Link
-              href="/login"
+              href={loginHref}
               className="inline-flex min-h-12 items-center font-semibold text-stamp touch-manipulation"
             >
               {messages.haveCompany}

@@ -1,12 +1,14 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { safeInviteNext } from "@/lib/safe-next";
 
 const PENDING_COMPANY = "kyzmat-pending-company";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const next = safeInviteNext(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();
@@ -29,9 +31,14 @@ export async function GET(request: Request) {
         cookieStore.delete(PENDING_COMPANY);
       }
 
-      return NextResponse.redirect(`${origin}/`);
+      return NextResponse.redirect(`${origin}${next ?? "/"}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  const fail = new URL("/login", origin);
+  fail.searchParams.set("error", "auth");
+  if (next) {
+    fail.searchParams.set("next", next);
+  }
+  return NextResponse.redirect(fail);
 }

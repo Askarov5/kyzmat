@@ -231,14 +231,18 @@ export async function joinCompany(
   _prev: CompanyActionState,
   formData: FormData,
 ): Promise<CompanyActionState> {
-  const code = String(formData.get("code") ?? "").trim();
+  const tenantId = String(formData.get("tenantId") ?? "").trim();
+  const password = String(formData.get("password") ?? "").trim();
 
-  if (!code) {
+  if (!tenantId || !password) {
     return { error: "code", code: null };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("join_company", { code });
+  const { error } = await supabase.rpc("join_company", {
+    tid: tenantId,
+    pass: password,
+  });
 
   if (error) {
     if (error.message.includes("already")) {

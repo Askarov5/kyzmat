@@ -12,7 +12,7 @@ export default async function InvitePage() {
   }
 
   if (!(await getUserId())) {
-    redirect("/login");
+    redirect("/login?next=%2Finvite");
   }
 
   const lookup = await lookupMembership();

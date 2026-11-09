@@ -12,12 +12,15 @@ import { CopyIcon, PhoneIcon } from "@/components/app-icons";
 import { Badge } from "@/components/tailgrids/badge";
 import { ListRow, Notice } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
+import { inviteUrl } from "@/lib/invite-link";
 import type { CompanyMember, MemberRole } from "@/lib/types";
 
 interface InvitePanelProps {
+  tenantId: string;
   inviteCode: string;
   members: CompanyMember[];
   messages: Messages;
+  onPasscodeChange?: (password: string) => void;
 }
 
 const initialState: CompanyActionState = { error: null, code: null };
@@ -40,14 +43,26 @@ function memberTitle(member: CompanyMember, messages: Messages): string {
   return roleLabel(member.role, messages);
 }
 
-export function InvitePanel({ inviteCode, members, messages }: InvitePanelProps) {
+export function InvitePanel({
+  tenantId,
+  inviteCode,
+  members,
+  messages,
+  onPasscodeChange,
+}: InvitePanelProps) {
   const [rotateState, rotateAction, rotatePending] = useActionState(rotateInviteCode, initialState);
   const [removeState, removeAction, removePending] = useActionState(removeMember, initialState);
   const [restoreState, restoreAction, restorePending] = useActionState(restoreMember, initialState);
   const [roleState, roleAction, rolePending] = useActionState(setMemberRole, initialState);
   const [copied, setCopied] = useState(false);
 
-  const shownCode = rotateState.code ?? inviteCode;
+  const shownPass = rotateState.code ?? inviteCode;
+
+  useEffect(() => {
+    if (rotateState.code) {
+      onPasscodeChange?.(rotateState.code);
+    }
+  }, [rotateState.code, onPasscodeChange]);
   const error =
     rotateState.error === "owner" ||
     removeState.error === "owner" ||
@@ -66,9 +81,9 @@ export function InvitePanel({ inviteCode, members, messages }: InvitePanelProps)
     return () => window.clearTimeout(timer);
   }, [copied]);
 
-  async function copyCode() {
+  async function copyInviteLink() {
     try {
-      await navigator.clipboard.writeText(shownCode);
+      await navigator.clipboard.writeText(inviteUrl(window.location.origin, tenantId, shownPass));
       setCopied(true);
     } catch {
       setCopied(false);
@@ -81,21 +96,30 @@ export function InvitePanel({ inviteCode, members, messages }: InvitePanelProps)
         <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.inviteCode}</h2>
         <p className="text-sm text-mute">{messages.inviteLead}</p>
         <div className="flex flex-col gap-3 rounded-lg border border-stamp/25 bg-row-selected/40 p-3 shadow-sm">
-          <p
-            className="text-center text-2xl font-semibold tracking-[0.18em] tabular-nums text-ink"
-            translate="no"
-          >
-            {shownCode}
-          </p>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-mute">{messages.meetingId}</p>
+            <p className="break-all text-sm font-semibold tabular-nums text-ink" translate="no">
+              {tenantId}
+            </p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-mute">{messages.invitePassword}</p>
+            <p
+              className="text-2xl font-semibold tracking-[0.18em] tabular-nums text-ink"
+              translate="no"
+            >
+              {shownPass}
+            </p>
+          </div>
           {error ? <Notice>{error}</Notice> : null}
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => void copyCode()}
+              onClick={() => void copyInviteLink()}
               className="choice inline-flex min-h-12 items-center justify-center gap-2 text-sm font-semibold text-stamp"
             >
               <CopyIcon className="size-4" />
-              {copied ? messages.codeCopied : messages.copyCode}
+              {copied ? messages.inviteLinkCopied : messages.copyInviteLink}
             </button>
             <form action={rotateAction} className="min-w-0">
               <button

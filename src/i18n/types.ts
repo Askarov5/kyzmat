@@ -159,8 +159,12 @@ export interface Messages {
   inviteTitle: string;
   inviteCode: string;
   inviteLead: string;
+  meetingId: string;
+  invitePassword: string;
   copyCode: string;
   codeCopied: string;
+  copyInviteLink: string;
+  inviteLinkCopied: string;
   rotateCode: string;
   companySettings: string;
   companyDetails: string;

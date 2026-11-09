@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { parseLocale } from "@/i18n/locale";
 import { toKyrgyzE164 } from "@/lib/phone";
+import { safeInviteNext } from "@/lib/safe-next";
 import type { Locale } from "@/lib/types";
 
 const PENDING_COMPANY = "kyzmat-pending-company";
@@ -134,7 +135,8 @@ export async function verifyWhatsAppCode(
   }
 
   await openPendingCompany();
-  redirect("/");
+  const next = safeInviteNext(String(formData.get("next") ?? ""));
+  redirect(next ?? "/");
 }
 
 export async function createCompany(

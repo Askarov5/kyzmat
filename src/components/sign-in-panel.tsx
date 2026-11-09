@@ -17,21 +17,26 @@ interface SignInPanelProps {
   intent: "login" | "signup";
   messages: Messages;
   failed: boolean;
+  next?: string | null;
 }
 
 const initialState: AuthState = { error: null, sentTo: null };
 
-async function startProvider(provider: "google" | "apple") {
+async function startProvider(provider: "google" | "apple", next: string | null) {
   const supabase = createClient();
+  const callback = new URL("/auth/callback", window.location.origin);
+  if (next) {
+    callback.searchParams.set("next", next);
+  }
   await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: callback.toString(),
     },
   });
 }
 
-export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
+export function SignInPanel({ intent, messages, failed, next = null }: SignInPanelProps) {
   const [sent, sendCode, sending] = useActionState(sendWhatsAppCode, initialState);
   const [checked, verifyCode, verifying] = useActionState(verifyWhatsAppCode, initialState);
   const [companyName, setCompanyName] = useState("");
@@ -65,7 +70,7 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
       await rememberCompany(companyName);
     }
 
-    await startProvider(provider);
+    await startProvider(provider, next);
   }
 
   return (
@@ -74,6 +79,7 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
         <form action={verifyCode} className="flex flex-col gap-4">
           <p className="text-base leading-snug text-mute">{messages.codeSent}</p>
           <input type="hidden" name="phone" value={phone} />
+          {next ? <input type="hidden" name="next" value={next} /> : null}
           <label className="flex flex-col gap-2 text-sm font-semibold">
             {messages.code}
             <Field
@@ -95,6 +101,7 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
         <form action={sendCode} className="flex flex-col gap-4">
           <input type="hidden" name="intent" value={intent} />
           <input type="hidden" name="phone" value={phoneNumber} />
+          {next ? <input type="hidden" name="next" value={next} /> : null}
           {intent === "signup" ? (
             <label className="flex flex-col gap-2 text-sm font-semibold">
               {messages.companyName}

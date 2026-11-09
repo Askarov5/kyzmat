@@ -171,6 +171,22 @@ export function CopyIcon({ className = base }: IconProps) {
   );
 }
 
+export function ShareIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <circle cx="14.5" cy="4.5" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="14.5" cy="15.5" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="5.5" cy="10" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M7.3 9.1 12.7 5.9M7.3 10.9l5.4 3.2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function GoogleIcon({ className = base }: IconProps) {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" className={className}>
