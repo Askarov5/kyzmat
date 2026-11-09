@@ -33,7 +33,7 @@ function dockLabel(label: string, key: (typeof dockItems)[number]["key"]) {
 }
 
 export function AppShell({ locale, messages, companyName, role, section, children }: AppShellProps) {
-  const companyHref = role === "owner" ? "/company/invite" : undefined;
+  const companyHref = role === "owner" ? "/company" : undefined;
   const dock = (
     <nav className="dock pointer-events-none fixed inset-x-0 bottom-0" aria-label={messages.sections}>
       <div className="pointer-events-auto mx-auto max-w-md border-t border-line bg-sheet pb-[env(safe-area-inset-bottom)]">

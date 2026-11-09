@@ -74,5 +74,15 @@ export interface ServiceDate {
 export interface CompanyMember {
   id: string;
   role: MemberRole;
+  displayName: string | null;
+  phoneE164: string | null;
   removedAt: string | null;
+}
+
+export interface CompanyDetails {
+  name: string;
+  phoneE164: string | null;
+  addressLine: string | null;
+  localityId: string | null;
+  localityKy: string | null;
 }

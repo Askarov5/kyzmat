@@ -34,7 +34,7 @@ The shop timezone starts as `Asia/Bishkek`. The first companies are set up with 
 
 ## Capabilities and Constraints
 
-Roles are owner and agent. Both can read clients, products, orders, and stock. The owner creates the company, adds products, receives stock, and corrects it. An agent reserves a quantity for a named client.
+Roles are owner and agent (and warehouse for stock). Both can read clients, products, orders, and stock. The owner creates the company, edits company name, phone, and address, manages members (invite code, remove/restore, agent↔warehouse), adds products, receives stock, and corrects it. An agent reserves a quantity for a named client.
 
 A product requires a name and a price in whole soms. Description, SKU, unit, maintenance interval, and reorder interval are optional. Size and model may live in the name. A maintenance interval is for equipment that stays at an address. A reorder interval is for goods the client buys again. A serial belongs to one physical unit, not the catalog row.
 

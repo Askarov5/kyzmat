@@ -232,3 +232,163 @@ values
   )
 on conflict (id) do update
 set next_on = excluded.next_on;
+
+-- Sample auth users for member rows (display only; skip-auth owner is ...0002).
+insert into auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  is_sso_user,
+  is_anonymous
+)
+values
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-4000-8000-000000000002',
+    'authenticated',
+    'authenticated',
+    'owner@synak.kyzmat.local',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Тынарбек"}'::jsonb,
+    now(),
+    now(),
+    false,
+    false
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-4000-8000-000000000003',
+    'authenticated',
+    'authenticated',
+    'ainura@synak.kyzmat.local',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Айнура Жээнбекова"}'::jsonb,
+    now(),
+    now(),
+    false,
+    false
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-4000-8000-000000000004',
+    'authenticated',
+    'authenticated',
+    'bektur@synak.kyzmat.local',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Бектур Асанов"}'::jsonb,
+    now(),
+    now(),
+    false,
+    false
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-4000-8000-000000000005',
+    'authenticated',
+    'authenticated',
+    'nurgul@synak.kyzmat.local',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Нургул Кадырова"}'::jsonb,
+    now(),
+    now(),
+    false,
+    false
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-4000-8000-000000000006',
+    'authenticated',
+    'authenticated',
+    'removed@synak.kyzmat.local',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"Эрлан Токтогулов"}'::jsonb,
+    now(),
+    now(),
+    false,
+    false
+  )
+on conflict (id) do update
+set
+  email = excluded.email,
+  raw_user_meta_data = excluded.raw_user_meta_data,
+  updated_at = now();
+
+insert into public.members (
+  id, tenant_id, user_id, role, locale, display_name, phone_e164, removed_at
+)
+values
+  (
+    '00000000-0000-4000-8000-000000000801',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000002',
+    'owner',
+    'ky',
+    'Тынарбек',
+    '+996700100200',
+    null
+  ),
+  (
+    '00000000-0000-4000-8000-000000000802',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000003',
+    'agent',
+    'ky',
+    'Айнура Жээнбекова',
+    '+996700222333',
+    null
+  ),
+  (
+    '00000000-0000-4000-8000-000000000803',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000004',
+    'agent',
+    'ru',
+    'Бектур Асанов',
+    '+996555444555',
+    null
+  ),
+  (
+    '00000000-0000-4000-8000-000000000804',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000005',
+    'warehouse',
+    'ky',
+    'Нургул Кадырова',
+    '+996777888999',
+    null
+  ),
+  (
+    '00000000-0000-4000-8000-000000000805',
+    '00000000-0000-4000-8000-000000000001',
+    '00000000-0000-4000-8000-000000000006',
+    'agent',
+    'ky',
+    'Эрлан Токтогулов',
+    '+996312000111',
+    now() - interval '3 days'
+  )
+on conflict (id) do update
+set
+  role = excluded.role,
+  locale = excluded.locale,
+  display_name = excluded.display_name,
+  phone_e164 = excluded.phone_e164,
+  removed_at = excluded.removed_at;

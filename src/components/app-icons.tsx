@@ -148,6 +148,29 @@ export function UserIcon({ className = base }: IconProps) {
   );
 }
 
+export function CopyIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <rect
+        x="7"
+        y="7"
+        width="8.5"
+        height="8.5"
+        rx="1.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M12.5 7V5.5A1.5 1.5 0 0 0 11 4H5.5A1.5 1.5 0 0 0 4 5.5V11a1.5 1.5 0 0 0 1.5 1.5H7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function GoogleIcon({ className = base }: IconProps) {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" className={className}>

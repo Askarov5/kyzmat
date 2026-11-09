@@ -103,7 +103,7 @@ export function AccountMenu({
               className="flex min-h-12 items-center border-b border-line px-3 text-sm font-semibold text-stamp touch-manipulation [@media(hover:hover)]:hover:bg-row"
               onClick={() => setOpen(false)}
             >
-              {messages.inviteCode}
+              {messages.companySettings}
             </Link>
           ) : null}
 
