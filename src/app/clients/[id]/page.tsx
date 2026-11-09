@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddressForm } from "@/components/address-form";
 import { ArchiveControl } from "@/components/archive-control";
+import { BackIcon, CalendarIcon, NoteIcon, OrderIcon, PhoneIcon, PinIcon } from "@/components/app-icons";
+import { Disclose, DisclosePanel, DiscloseTrigger } from "@/components/disclose";
 import { NoteForm } from "@/components/note-form";
+import { SectionHeading } from "@/components/section-heading";
 import { ButtonLink, ListRow } from "@/components/ui";
 import { messagesFor } from "@/i18n/messages";
 import { canBook, requireMembership } from "@/lib/auth";
@@ -105,86 +108,138 @@ export default async function ClientDetailPage({
   const bookingAllowed = canBook(membership.role);
 
   return (
-    <div className="flex flex-col gap-6">
-      <Link href="/clients" className="inline-flex min-h-12 items-center text-sm font-semibold text-stamp">
-        {messages.back}
-      </Link>
-      <header>
-        <h1 className="text-pretty text-3xl font-semibold tracking-tight">
-          {client.display_name as string}
-        </h1>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-start gap-2">
+        <Link
+          href="/clients"
+          className="inline-flex min-h-12 shrink-0 items-center gap-1 text-sm font-semibold text-stamp"
+        >
+          <BackIcon />
+          <span className="sr-only">{messages.back}</span>
+        </Link>
+        <header className="min-w-0 flex-1 pt-1.5">
+          <h1 className="text-pretty text-2xl font-semibold tracking-tight leading-tight">
+            {client.display_name as string}
+          </h1>
+        </header>
+      </div>
+
+      <div className="flex flex-col gap-2">
         {phone ? (
-          <ButtonLink href={`tel:${phone}`} className="mt-4 w-full justify-center tabular-nums">
-            {messages.call} {phone}
+          <ButtonLink href={`tel:${phone}`} className="w-full justify-center gap-2">
+            <PhoneIcon className="size-4" />
+            {messages.call}
+            <span className="tabular-nums opacity-90">{phone}</span>
           </ButtonLink>
         ) : null}
         {bookingAllowed ? (
-          <ButtonLink href={`/orders/new?clientId=${id}`} className="mt-3 w-full justify-center">
+          <Link
+            href={`/orders/new?clientId=${id}`}
+            className="choice flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line text-sm font-semibold text-stamp"
+          >
+            <OrderIcon />
             {messages.addOrder}
-          </ButtonLink>
+          </Link>
         ) : null}
-      </header>
+        <Link
+          href={`/orders?clientId=${id}`}
+          className="choice flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line text-sm font-semibold text-stamp"
+        >
+          <OrderIcon />
+          {messages.clientOrders}
+        </Link>
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.serviceDates}</h2>
-        {services.length === 0 ? (
-          <p className="text-sm text-mute">{messages.emptyService}</p>
-        ) : (
-          <ul className="overflow-hidden rounded-lg border border-line bg-white">
+      {services.length > 0 ? (
+        <section className="flex flex-col gap-1.5">
+          <SectionHeading icon={<CalendarIcon />}>{messages.serviceDates}</SectionHeading>
+          <ul className="overflow-hidden rounded-lg border border-line">
             {services.map((service, index) => (
               <ListRow key={service.productId} ruled>
-                <div className="flex min-h-12 items-center justify-between gap-3 py-2">
+                <div className="flex min-h-11 items-center justify-between gap-3 py-1">
                   <div className="min-w-0">
-                    <p className="font-semibold">{service.productName}</p>
+                    <p className="truncate text-sm font-semibold">{service.productName}</p>
                     {index === 0 ? (
-                      <p className="text-sm text-mute">{messages.nextService}</p>
+                      <p className="text-xs text-mute">{messages.nextService}</p>
                     ) : null}
                   </div>
-                  <p className="tabular-nums font-semibold">
+                  <p className="shrink-0 tabular-nums text-sm font-semibold">
                     {dateFormat.format(new Date(`${service.nextOn}T12:00:00`))}
                   </p>
                 </div>
               </ListRow>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      ) : null}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.addresses}</h2>
-        {addresses.length === 0 ? (
-          <p className="text-sm text-mute">{messages.emptyAddresses}</p>
-        ) : (
-          <ul className="overflow-hidden rounded-lg border border-line bg-white">
-            {addresses.map((address) => (
-              <li key={address.id} className="border-b border-line py-3">
-                <p className="font-semibold">
-                  {membership.locale === "ru" ? address.localityRu : address.localityKy}
-                </p>
-                <p className="break-words">{address.line}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-        <AddressForm clientId={id} locale={membership.locale} messages={messages} />
-      </section>
+      <Disclose defaultOpen={addresses.length === 0}>
+        <section className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 border-b border-line pb-2">
+            <h2 className="flex min-h-10 min-w-0 flex-1 items-center gap-2 text-base font-semibold">
+              <span className="text-mute">
+                <PinIcon />
+              </span>
+              {messages.addresses}
+            </h2>
+            <DiscloseTrigger label={messages.addAddress} />
+          </div>
+          {addresses.length === 0 ? (
+            <p className="text-sm text-mute">{messages.emptyAddresses}</p>
+          ) : (
+            <ul className="overflow-hidden rounded-lg border border-line">
+              {addresses.map((address) => (
+                <li key={address.id} className="flex gap-2 border-b border-line px-3 py-2 last:border-b-0">
+                  <PinIcon className="mt-0.5 size-3.5 text-mute" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">
+                      {membership.locale === "ru" ? address.localityRu : address.localityKy}
+                    </p>
+                    <p className="break-words text-sm leading-snug text-mute">{address.line}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          <DisclosePanel title={messages.addAddress} cancelLabel={messages.cancel}>
+            <AddressForm clientId={id} locale={membership.locale} messages={messages} />
+          </DisclosePanel>
+        </section>
+      </Disclose>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.notes}</h2>
-        {notes.length === 0 ? (
-          <p className="text-sm text-mute">{messages.emptyNotes}</p>
-        ) : (
-          <ul className="overflow-hidden rounded-lg border border-line bg-white">
-            {notes.map((note) => (
-              <li key={note.id} className="border-b border-line py-3">
-                <p className="break-words">{note.body}</p>
-                <p className="text-sm text-mute">{dateFormat.format(new Date(note.createdAt))}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-        <NoteForm clientId={id} phrases={phrases} messages={messages} />
-      </section>
+      <Disclose>
+        <section className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 border-b border-line pb-2">
+            <h2 className="flex min-h-10 min-w-0 flex-1 items-center gap-2 text-base font-semibold">
+              <span className="text-mute">
+                <NoteIcon />
+              </span>
+              {messages.notes}
+            </h2>
+            <DiscloseTrigger label={messages.addNote} />
+          </div>
+          {notes.length === 0 ? (
+            <p className="text-sm text-mute">{messages.emptyNotes}</p>
+          ) : (
+            <ul className="overflow-hidden rounded-lg border border-line">
+              {notes.map((note) => (
+                <li key={note.id} className="flex gap-2 border-b border-line px-3 py-2 last:border-b-0">
+                  <NoteIcon className="mt-0.5 size-3.5 text-mute" />
+                  <div className="min-w-0">
+                    <p className="break-words text-sm leading-snug">{note.body}</p>
+                    <p className="mt-0.5 text-xs text-mute">
+                      {dateFormat.format(new Date(note.createdAt))}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          <DisclosePanel title={messages.addNote} cancelLabel={messages.cancel}>
+            <NoteForm clientId={id} phrases={phrases} messages={messages} />
+          </DisclosePanel>
+        </section>
+      </Disclose>
 
       {membership.role === "owner" ? <ArchiveControl clientId={id} messages={messages} /> : null}
     </div>

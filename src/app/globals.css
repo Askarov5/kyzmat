@@ -559,10 +559,23 @@ body {
 .choice[data-active="true"] { background: var(--color-row); }
 .choice[aria-selected="true"] { background: var(--color-row-selected); color: var(--color-stamp); }
 
-.lang-set { display: flex; gap: 0.25rem; }
+.lang-set {
+  display: flex;
+  width: 100%;
+  gap: 0.25rem;
+}
 
-.lang-set button,
-.sign-out {
+.lang-set form {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+}
+
+.lang-set button {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
   padding: 0 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -594,7 +607,6 @@ body {
 @media (hover: hover) {
   .choice:hover,
   .lang-set button:hover,
-  .sign-out:hover,
   .nav-item:not(:disabled):hover { background: var(--color-row); }
 }
 
@@ -602,10 +614,9 @@ body {
 
 .choice:active,
 .lang-set button:active,
-.sign-out:active,
 .nav-item:not(:disabled):active { transform: scale(0.98); }
 
 @media (prefers-reduced-motion: reduce) {
   .choice, .nav-item, .lang-set button { transition: none; }
-  .choice:active, .lang-set button:active, .sign-out:active, .nav-item:active { transform: none; }
+  .choice:active, .lang-set button:active, .nav-item:active { transform: none; }
 }

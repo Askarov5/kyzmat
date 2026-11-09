@@ -43,7 +43,9 @@ export function AddressForm({ clientId, locale, messages }: AddressFormProps) {
           {errorText}
         </Notice>
       ) : null}
-      <Button disabled={pending}>{pending ? messages.saving : messages.save}</Button>
+      <Button disabled={pending} className="w-full">
+        {pending ? messages.saving : messages.save}
+      </Button>
     </form>
   );
 }

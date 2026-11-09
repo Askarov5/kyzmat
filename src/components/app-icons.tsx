@@ -1,0 +1,131 @@
+interface IconProps {
+  className?: string;
+}
+
+const base = "size-4 shrink-0";
+
+export function PhoneIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M6.2 3.8c.4-.4 1-.5 1.5-.3l1.6.6c.5.2.8.7.7 1.2l-.3 1.5a1.2 1.2 0 0 1-.7.9l-.9.4a8.2 8.2 0 0 0 3.7 3.7l.4-.9a1.2 1.2 0 0 1 .9-.7l1.5-.3c.5-.1 1 .2 1.2.7l.6 1.6c.2.5.1 1.1-.3 1.5l-.8.8c-.5.5-1.2.7-1.9.5A12.4 12.4 0 0 1 4.9 6.5c-.2-.7 0-1.4.5-1.9l.8-.8Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PinIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M10 17.2s5.2-4.1 5.2-8.1A5.2 5.2 0 0 0 10 3.9 5.2 5.2 0 0 0 4.8 9.1c0 4 5.2 8.1 5.2 8.1Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="9" r="1.6" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+export function NoteIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M5.5 3.5h6.2L14.5 6.3V16a1.2 1.2 0 0 1-1.2 1.2H5.5A1.2 1.2 0 0 1 4.3 16V4.7A1.2 1.2 0 0 1 5.5 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M11.5 3.6V6.8h3.1M7 9.5h6M7 12.5h4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function CalendarIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <rect x="3.5" y="4.5" width="13" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M3.5 8.2h13M7 3.2v2.6M13 3.2v2.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function OrderIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M4 5.2h1.4l1.1 7.2h7.8l1.3-5.2H6.1"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="8.2" cy="15.2" r="1" fill="currentColor" />
+      <circle cx="13.4" cy="15.2" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <circle cx="9" cy="9" r="4.75" stroke="currentColor" strokeWidth="1.5" />
+      <path d="m12.8 12.8 3.2 3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function FilterIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M3.5 5.5h13M5.5 10h9M7.5 14.5h5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function BackIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M11.8 4.8 6.6 10l5.2 5.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function PlusIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M10 4.5v11M4.5 10h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ChevronIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M5.5 7.8 10 12.2l4.5-4.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function UserIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <circle cx="10" cy="7" r="2.75" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M4.5 15.4c1.4-2.2 3.3-3.3 5.5-3.3s4.1 1.1 5.5 3.3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

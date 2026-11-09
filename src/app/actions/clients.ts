@@ -147,7 +147,7 @@ export async function addNote(
   const membership = await requireMembership();
   const clientId = String(formData.get("clientId") ?? "");
   const phraseId = String(formData.get("phraseId") ?? "");
-  const newPhrase = String(formData.get("newPhrase") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const authorId = claims?.claims?.sub;
@@ -156,8 +156,11 @@ export async function addNote(
     redirect("/login");
   }
 
-  let body = newPhrase;
-  let savedPhraseId: string | null = phraseId || null;
+  if (!body) {
+    return { error: "required" };
+  }
+
+  let savedPhraseId: string | null = null;
 
   if (phraseId) {
     const { data: phrase, error } = await supabase
@@ -167,33 +170,13 @@ export async function addNote(
       .eq("tenant_id", membership.tenantId)
       .maybeSingle();
 
-    if (error || !phrase) {
-      return { error: "save" };
+    if (!error && phrase && (phrase.body as string) === body) {
+      savedPhraseId = phrase.id as string;
+      await supabase
+        .from("note_phrases")
+        .update({ use_count: (phrase.use_count as number) + 1 })
+        .eq("id", phraseId);
     }
-
-    body = phrase.body as string;
-    await supabase
-      .from("note_phrases")
-      .update({ use_count: (phrase.use_count as number) + 1 })
-      .eq("id", phraseId);
-  } else if (newPhrase) {
-    const { data: created, error } = await supabase
-      .from("note_phrases")
-      .insert({
-        tenant_id: membership.tenantId,
-        body: newPhrase,
-        use_count: 1,
-      })
-      .select("id")
-      .single();
-
-    if (error || !created) {
-      return { error: "save" };
-    }
-
-    savedPhraseId = created.id as string;
-  } else {
-    return { error: "required" };
   }
 
   const { error: noteError } = await supabase.from("client_notes").insert({

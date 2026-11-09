@@ -1,5 +1,6 @@
-import { ButtonLink, Notice } from "@/components/ui";
+import { PlusIcon } from "@/components/app-icons";
 import { ClientSearch } from "@/components/client-search";
+import { ButtonLink, Notice } from "@/components/ui";
 import { messagesFor } from "@/i18n/messages";
 import { canBook, requireMembership } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -24,11 +25,17 @@ export default async function ClientsPage() {
   }));
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-pretty text-3xl font-semibold tracking-tight">{messages.clients}</h1>
-        <ButtonLink href="/clients/new" className="shrink-0 whitespace-nowrap">
-          {messages.addClient}
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <h1 className="min-w-0 flex-1 text-pretty text-3xl font-semibold tracking-tight">
+          {messages.clients}
+        </h1>
+        <ButtonLink
+          href="/clients/new"
+          className="shrink-0 gap-1.5 px-3 [&_svg]:size-5"
+        >
+          <PlusIcon className="size-5" />
+          <span className="max-w-[9rem] truncate sm:max-w-none">{messages.addClient}</span>
         </ButtonLink>
       </div>
       {error ? (

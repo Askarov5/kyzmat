@@ -3,8 +3,10 @@
 import { useActionState, useMemo, useState } from "react";
 import { createOrder, type OrderFormState } from "@/app/actions/orders";
 import { Combobox } from "@/components/combobox";
+import { StockFigures } from "@/components/stock-figures";
 import { Button, Field, Notice } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
+import type { ProductSummary } from "@/lib/types";
 
 interface OrderClient {
   id: string;
@@ -17,17 +19,12 @@ interface OrderAddress {
   line: string;
 }
 
-interface OrderProduct {
-  id: string;
-  name: string;
-  available: number;
-}
-
 interface OrderFormProps {
   clients: OrderClient[];
   addresses: OrderAddress[];
-  products: OrderProduct[];
+  products: ProductSummary[];
   messages: Messages;
+  locale: "ky" | "ru";
   initialClientId?: string;
 }
 
@@ -38,10 +35,18 @@ export function OrderForm({
   addresses,
   products,
   messages,
+  locale,
   initialClientId = "",
 }: OrderFormProps) {
   const [state, action, pending] = useActionState(createOrder, initialState);
   const [clientId, setClientId] = useState(initialClientId);
+  const [productId, setProductId] = useState("");
+  const [qty, setQty] = useState("");
+  const [localError, setLocalError] = useState<OrderFormState["error"]>(null);
+  const counts = useMemo(
+    () => new Intl.NumberFormat(locale === "ru" ? "ru" : "ky"),
+    [locale],
+  );
   const clientOptions = useMemo(
     () => clients.map((client) => ({ id: client.id, label: client.name })),
     [clients],
@@ -53,36 +58,59 @@ export function OrderForm({
         .map((address) => ({ id: address.id, label: address.line })),
     [addresses, clientId],
   );
+  const autoAddressId = addressOptions[0]?.id ?? "";
   const productOptions = useMemo(
     () =>
       products.map((product) => ({
         id: product.id,
-        label: `${product.name} · ${product.available}`,
+        label: product.name,
       })),
     [products],
   );
+  const selectedProduct = products.find((product) => product.id === productId);
+  const shownError = localError ?? state.error;
   const errorText =
-    state.error === "required"
-      ? messages.required
-      : state.error === "address"
+    shownError === "required"
+      ? messages.needClient
+      : shownError === "address"
         ? messages.addressRequired
-        : state.error === "product"
+        : shownError === "product"
           ? messages.pickProduct
-          : state.error === "quantity"
+          : shownError === "quantity"
             ? messages.quantityInvalid
-            : state.error === "free"
+            : shownError === "free"
               ? messages.insufficientFree
-              : state.error === "denied"
+              : shownError === "denied"
                 ? messages.bookDenied
-                : state.error
-                  ? messages.saveFailed
-                  : null;
+                : shownError === "auth"
+                  ? messages.signInNeeded
+                  : shownError
+                    ? messages.saveFailed
+                    : null;
+
+  function onSubmit(formData: FormData) {
+    setLocalError(null);
+    const amountRaw = String(formData.get("qty") ?? "").trim();
+    const amount = Number(amountRaw);
+
+    if (!/^[1-9]\d{0,5}$/.test(amountRaw)) {
+      setLocalError("quantity");
+      return;
+    }
+
+    if (selectedProduct && amount > selectedProduct.available) {
+      setLocalError("free");
+      return;
+    }
+
+    action(formData);
+  }
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form action={onSubmit} className="flex flex-col gap-4">
       {initialClientId ? <input type="hidden" name="clientId" value={initialClientId} /> : null}
       {initialClientId ? (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <span className="text-sm font-semibold">{messages.orderClient}</span>
           <p className="min-h-12 rounded-lg border border-line bg-field px-3 py-3 font-semibold">
             {clients.find((client) => client.id === initialClientId)?.name ?? ""}
@@ -100,15 +128,16 @@ export function OrderForm({
         />
       )}
       <Combobox
-        key={clientId || "address"}
+        key={`${clientId || "address"}:${autoAddressId || "none"}`}
         name="addressId"
         label={messages.orderAddress}
         placeholder={messages.pickAddress}
         emptyLabel={messages.noMatch}
         options={addressOptions}
         required
-        disabled={!clientId}
-        startOpen={Boolean(clientId) && addressOptions.length > 0}
+        disabled={!clientId || addressOptions.length === 0}
+        initialId={autoAddressId}
+        startOpen={Boolean(clientId) && addressOptions.length > 1}
       />
       {clientId && addressOptions.length === 0 ? (
         <p className="text-sm text-mute">{messages.emptyAddresses}</p>
@@ -120,8 +149,21 @@ export function OrderForm({
         emptyLabel={messages.noMatch}
         options={productOptions}
         required
+        onPick={(id) => {
+          setProductId(id);
+          setLocalError(null);
+        }}
       />
-      <label className="flex flex-col gap-1.5 text-sm font-semibold" htmlFor="order-qty">
+      {selectedProduct ? (
+        <StockFigures
+          onHand={selectedProduct.onHand}
+          reserved={selectedProduct.reserved}
+          available={selectedProduct.available}
+          messages={messages}
+          format={counts.format.bind(counts)}
+        />
+      ) : null}
+      <label className="flex flex-col gap-2 text-sm font-semibold" htmlFor="order-qty">
         {messages.orderAmount}
         <Field
           id="order-qty"
@@ -129,19 +171,33 @@ export function OrderForm({
           inputMode="numeric"
           autoComplete="off"
           required
+          value={qty}
+          max={selectedProduct ? String(selectedProduct.available) : undefined}
+          aria-invalid={shownError === "free" || shownError === "quantity" ? true : undefined}
           className="tabular-nums"
+          onChange={(event) => {
+            setQty(event.target.value);
+            setLocalError(null);
+          }}
         />
+        {selectedProduct ? (
+          <span className="text-sm font-normal tabular-nums text-mute">
+            {messages.available} {counts.format(selectedProduct.available)}
+          </span>
+        ) : null}
       </label>
-      <label className="flex flex-col gap-1.5 text-sm font-semibold" htmlFor="scheduled-on">
+      <label className="flex flex-col gap-2 text-sm font-semibold" htmlFor="scheduled-on">
         {messages.scheduled}
         <Field id="scheduled-on" name="scheduledOn" type="date" />
       </label>
-      <label className="flex flex-col gap-1.5 text-sm font-semibold" htmlFor="order-note">
+      <label className="flex flex-col gap-2 text-sm font-semibold" htmlFor="order-note">
         {messages.notes}
         <Field id="order-note" name="note" maxLength={500} />
       </label>
       {errorText ? <Notice>{errorText}</Notice> : null}
-      <Button disabled={pending}>{pending ? messages.saving : messages.save}</Button>
+      <Button disabled={pending} className="w-full">
+        {pending ? messages.saving : messages.save}
+      </Button>
     </form>
   );
 }

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ButtonLink, Field, ListRow } from "@/components/ui";
+import { OrderIcon, PhoneIcon, SearchIcon } from "@/components/app-icons";
+import { ButtonLink, Field } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 import type { ClientSummary } from "@/lib/types";
 import { phoneDigits } from "@/lib/phone";
@@ -30,52 +31,107 @@ export function ClientSearch({ clients, messages, canBook }: ClientSearchProps) 
     });
   }, [clients, digits, needle]);
 
-  const showAdd = needle.length > 0 && filtered.length === 0;
+  const filtering = needle.length > 0;
+  const showMiss = filtering && filtered.length === 0 && clients.length > 0;
+  const showEmpty = clients.length === 0;
 
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm font-semibold" htmlFor="client-search">
-        {messages.searchClient}
-      </label>
-      <Field
-        id="client-search"
-        value={query}
-        role="combobox"
-        aria-expanded="true"
-        aria-controls="client-results"
-        aria-autocomplete="list"
-        autoComplete="off"
-        inputMode="search"
-        onChange={(event) => setQuery(event.target.value)}
-        className="text-lg"
-      />
-      <ul id="client-results" className="overflow-hidden rounded-lg border border-line bg-white">
+    <div className="flex w-full min-w-0 flex-col gap-3">
+      <div className="relative w-full min-w-0">
+        <span className="pointer-events-none absolute inset-y-0 left-3 z-10 flex items-center text-mute">
+          <SearchIcon />
+        </span>
+        <Field
+          id="client-search"
+          value={query}
+          type="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          inputMode="search"
+          spellCheck={false}
+          placeholder={messages.searchClient}
+          aria-label={messages.search}
+          aria-controls="client-results"
+          onChange={(event) => setQuery(event.target.value)}
+          className="block w-full min-w-0 pl-10 pr-12"
+        />
+        {query ? (
+          <button
+            type="button"
+            className="absolute inset-y-0 right-1 my-auto flex size-10 min-h-10 items-center justify-center rounded-lg text-xl leading-none text-mute"
+            aria-label={messages.clear}
+            onClick={() => setQuery("")}
+          >
+            ×
+          </button>
+        ) : null}
+      </div>
+
+      <ul id="client-results" className="flex w-full min-w-0 flex-col gap-3">
         {filtered.map((client) => (
-          <ListRow key={client.id} ruled>
-            <div className="flex min-h-12 items-center gap-2 py-2">
-              <Link href={`/clients/${client.id}`} className="flex min-w-0 flex-1 flex-col justify-center">
-                <span className="text-base font-semibold">{client.displayName}</span>
+          <li
+            key={client.id}
+            className="overflow-hidden rounded-lg border border-line bg-white shadow-[0_1px_3px_rgba(16,24,40,0.12)]"
+          >
+            <div className="flex min-h-14 w-full flex-nowrap items-stretch">
+              {canBook ? (
+                <Link
+                  href={`/orders/new?clientId=${client.id}`}
+                  className="flex w-[4.75rem] shrink-0 flex-col items-center justify-center gap-1 border-r border-line bg-field px-1.5 text-center text-[11px] font-semibold leading-tight text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                >
+                  <OrderIcon className="size-5" />
+                  <span className="text-balance">{messages.addOrder}</span>
+                </Link>
+              ) : null}
+              <Link
+                href={`/clients/${client.id}`}
+                className="flex min-h-14 min-w-0 flex-1 flex-col justify-center gap-0.5 px-3 py-2.5 touch-manipulation [@media(hover:hover)]:hover:bg-row"
+              >
+                <span className="break-words text-base font-semibold leading-snug">
+                  {client.displayName}
+                </span>
                 {client.phoneE164 ? (
-                  <span className="text-sm tabular-nums text-mute">{client.phoneE164}</span>
+                  <span className="flex items-center gap-1 text-sm tabular-nums text-mute">
+                    <PhoneIcon className="size-3.5 shrink-0" />
+                    {client.phoneE164}
+                  </span>
                 ) : null}
               </Link>
-              {canBook ? (
-                <ButtonLink
-                  href={`/orders/new?clientId=${client.id}`}
-                  className="shrink-0 whitespace-nowrap px-3"
+              {client.phoneE164 ? (
+                <a
+                  href={`tel:${client.phoneE164}`}
+                  className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 border-l border-line bg-field text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                  aria-label={`${messages.call} ${client.phoneE164}`}
                 >
-                  {messages.addOrder}
-                </ButtonLink>
+                  <PhoneIcon className="size-5" />
+                  <span className="text-[11px] font-semibold">{messages.call}</span>
+                </a>
               ) : null}
             </div>
-          </ListRow>
+          </li>
         ))}
-        {clients.length === 0 ? (
-          <li className="py-4 text-mute">{messages.noClients}</li>
+
+        {showEmpty ? (
+          <li className="rounded-lg border border-line bg-sheet px-3 py-4 text-sm text-mute shadow-sm">
+            {messages.noClients}
+          </li>
         ) : null}
-        {showAdd ? (
+
+        {showMiss ? (
+          <li className="flex flex-col gap-3 rounded-lg border border-line bg-sheet p-3 shadow-sm">
+            <p className="text-sm text-mute">{messages.noMatch}</p>
+            <ButtonLink
+              href={`/clients/new?name=${encodeURIComponent(query.trim())}`}
+              className="w-full justify-center"
+            >
+              {messages.addClient}
+            </ButtonLink>
+          </li>
+        ) : null}
+
+        {showEmpty ? (
           <li>
-            <ButtonLink href={`/clients/new?name=${encodeURIComponent(query.trim())}`}>
+            <ButtonLink href="/clients/new" className="w-full justify-center">
               {messages.addClient}
             </ButtonLink>
           </li>

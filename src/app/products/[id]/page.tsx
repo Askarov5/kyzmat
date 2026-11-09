@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackIcon } from "@/components/app-icons";
 import { CorrectStock } from "@/components/correct-stock";
 import { ReceiveStock } from "@/components/receive-stock";
+import { StockFigures } from "@/components/stock-figures";
+import { ListRow } from "@/components/ui";
 import { messagesFor } from "@/i18n/messages";
 import { intervalTitle, unitTitle } from "@/lib/catalog";
 import { canManagePile, requireMembership } from "@/lib/auth";
@@ -11,8 +14,6 @@ import { createClient } from "@/lib/supabase/server";
 interface BalanceRow {
   qty: number;
 }
-
-const figures = ["onHand", "reserved", "available"] as const;
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -45,11 +46,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const held = heldByProduct((heldResult.data ?? []) as HeldRow[]).get(id) ?? 0;
   const available = freeQty(onHand, held);
   const counts = new Intl.NumberFormat(membership.locale === "ru" ? "ru" : "ky");
-  const values = {
-    onHand: counts.format(onHand),
-    reserved: counts.format(held),
-    available: counts.format(available),
-  };
   const description = data.description as string | null;
   const sku = data.sku as string | null;
   const unit = data.unit as string | null;
@@ -64,43 +60,53 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const pileAllowed = canManagePile(membership.role);
 
   return (
-    <div className="flex flex-col gap-6">
-      <Link href="/products" className="inline-flex min-h-12 items-center text-sm font-semibold text-stamp">
-        {messages.back}
-      </Link>
-      <header>
-        <h1 className="text-pretty text-3xl font-semibold tracking-tight">{data.name as string}</h1>
-        {description ? <p className="mt-2 break-words text-base text-mute">{description}</p> : null}
-      </header>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-start gap-2">
+        <Link
+          href="/products"
+          className="inline-flex min-h-12 shrink-0 items-center gap-1 text-sm font-semibold text-stamp"
+        >
+          <BackIcon />
+          <span className="sr-only">{messages.back}</span>
+        </Link>
+        <header className="min-w-0 flex-1 pt-1.5">
+          <h1 className="text-pretty text-2xl font-semibold tracking-tight leading-tight">
+            {data.name as string}
+          </h1>
+          {description ? (
+            <p className="mt-1 break-words text-sm leading-snug text-mute">{description}</p>
+          ) : null}
+        </header>
+      </div>
+
+      <StockFigures
+        onHand={onHand}
+        reserved={held}
+        available={available}
+        messages={messages}
+        format={counts.format.bind(counts)}
+        size="card"
+      />
+
       {details.length > 0 ? (
-        <dl>
+        <ul className="overflow-hidden rounded-lg border border-line">
           {details.map((detail) => (
-            <div key={detail.label} className="flex min-h-12 items-center justify-between gap-3 border-b border-line">
-              <dt className="text-sm text-mute">{detail.label}</dt>
-              <dd className="text-right font-semibold break-words">{detail.value}</dd>
-            </div>
+            <ListRow key={detail.label} ruled>
+              <div className="flex min-h-12 items-center justify-between gap-3 py-2">
+                <span className="text-sm text-mute">{detail.label}</span>
+                <span className="text-right text-sm font-semibold break-words">{detail.value}</span>
+              </div>
+            </ListRow>
           ))}
-        </dl>
+        </ul>
       ) : null}
-      <dl className="grid grid-cols-3 gap-3">
-        {figures.map((figure) => (
-          <div key={figure}>
-            <dt className="text-sm text-mute">{messages[figure]}</dt>
-            <dd className="text-2xl font-semibold tabular-nums">{values[figure]}</dd>
-          </div>
-        ))}
-      </dl>
+
       {pileAllowed ? (
-        <>
-          <section className="flex flex-col gap-3">
-            <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.receive}</h2>
-            <ReceiveStock productId={id} messages={messages} />
-          </section>
-          <section className="flex flex-col gap-3">
-            <h2 className="border-b border-line pb-2 text-lg font-semibold">{messages.correctStock}</h2>
-            <CorrectStock productId={id} messages={messages} />
-          </section>
-        </>
+        <section className="flex flex-col gap-3">
+          <h2 className="border-b border-line pb-2 text-base font-semibold">{messages.receive}</h2>
+          <ReceiveStock productId={id} messages={messages} />
+          <CorrectStock productId={id} messages={messages} />
+        </section>
       ) : null}
     </div>
   );

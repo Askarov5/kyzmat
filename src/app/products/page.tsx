@@ -1,5 +1,6 @@
-import { ButtonLink, Notice } from "@/components/ui";
+import { PlusIcon } from "@/components/app-icons";
 import { ProductSearch } from "@/components/product-search";
+import { ButtonLink, Notice } from "@/components/ui";
 import { messagesFor } from "@/i18n/messages";
 import { requireMembership } from "@/lib/auth";
 import { freeQty, heldByProduct, type HeldRow } from "@/lib/stock";
@@ -34,21 +35,30 @@ export default async function ProductsPage() {
     const balance = row.stock_balances as BalanceRow | BalanceRow[] | null;
     const onHand = Array.isArray(balance) ? (balance[0]?.qty ?? 0) : (balance?.qty ?? 0);
     const productId = row.id as string;
+    const reserved = held.get(productId) ?? 0;
 
     return {
       id: productId,
       name: row.name as string,
-      available: freeQty(onHand, held.get(productId) ?? 0),
+      onHand,
+      reserved,
+      available: freeQty(onHand, reserved),
     };
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-pretty text-3xl font-semibold tracking-tight">{messages.products}</h1>
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <h1 className="min-w-0 flex-1 text-pretty text-3xl font-semibold tracking-tight">
+          {messages.products}
+        </h1>
         {membership.role === "owner" ? (
-          <ButtonLink href="/products/new" className="shrink-0 whitespace-nowrap">
-            {messages.addProduct}
+          <ButtonLink
+            href="/products/new"
+            className="shrink-0 gap-1.5 px-3 [&_svg]:size-5"
+          >
+            <PlusIcon className="size-5" />
+            <span className="max-w-[9rem] truncate sm:max-w-none">{messages.addProduct}</span>
           </ButtonLink>
         ) : null}
       </div>

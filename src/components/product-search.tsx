@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { SearchIcon } from "@/components/app-icons";
+import { StockFigures } from "@/components/stock-figures";
+import { Field, ListRow } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 import type { Locale, ProductSummary } from "@/lib/types";
-import { Field, ListRow } from "@/components/ui";
 
 interface ProductSearchProps {
   products: ProductSummary[];
@@ -28,28 +30,48 @@ export function ProductSearch({ products, messages, locale }: ProductSearchProps
   }, [needle, products]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm font-semibold" htmlFor="product-search">
-        {messages.name}
-      </label>
-      <Field
-        id="product-search"
-        value={query}
-        role="combobox"
-        aria-expanded="true"
-        aria-controls="product-results"
-        aria-autocomplete="list"
-        autoComplete="off"
-        onChange={(event) => setQuery(event.target.value)}
-      />
+    <div className="flex w-full min-w-0 flex-col gap-3">
+      <div className="relative w-full min-w-0">
+        <span className="pointer-events-none absolute inset-y-0 left-3 z-10 flex items-center text-mute">
+          <SearchIcon />
+        </span>
+        <Field
+          id="product-search"
+          value={query}
+          type="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          inputMode="search"
+          spellCheck={false}
+          placeholder={messages.searchProduct}
+          aria-label={messages.search}
+          aria-controls="product-results"
+          onChange={(event) => setQuery(event.target.value)}
+          className="block w-full min-w-0 pl-10 pr-12"
+        />
+        {query ? (
+          <button
+            type="button"
+            className="absolute inset-y-0 right-1 my-auto flex size-10 min-h-10 items-center justify-center rounded-lg text-xl leading-none text-mute"
+            aria-label={messages.clear}
+            onClick={() => setQuery("")}
+          >
+            ×
+          </button>
+        ) : null}
+      </div>
       <ul id="product-results" className="overflow-hidden rounded-lg border border-line bg-white">
         {filtered.map((product) => (
           <ListRow key={product.id} ruled>
-            <Link href={`/products/${product.id}`} className="flex min-h-12 flex-col justify-center py-2">
+            <Link href={`/products/${product.id}`} className="flex min-h-12 flex-col justify-center gap-1 py-2">
               <span className="break-words text-base font-semibold">{product.name}</span>
-              <span className="text-sm tabular-nums text-mute">
-                {messages.available} {counts.format(product.available)}
-              </span>
+              <StockFigures
+                onHand={product.onHand}
+                reserved={product.reserved}
+                available={product.available}
+                messages={messages}
+                format={counts.format.bind(counts)}
+              />
             </Link>
           </ListRow>
         ))}

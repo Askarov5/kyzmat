@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { canBook, requireMembership } from "@/lib/auth";
+import { freeQty, heldByProduct, type HeldRow } from "@/lib/stock";
 import { createClient } from "@/lib/supabase/server";
 
 export interface OrderFormState {
@@ -13,12 +14,17 @@ export interface OrderFormState {
     | "quantity"
     | "free"
     | "denied"
+    | "auth"
     | "save"
     | null;
 }
 
 export interface OrderStatusState {
   error: "denied" | "status" | "save" | null;
+}
+
+interface BalanceRow {
+  qty: number;
 }
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -36,6 +42,22 @@ function wholeQuantity(value: FormDataEntryValue | null): number | null {
   }
 
   return amount;
+}
+
+function rpcBlob(error: { message?: string; details?: string; hint?: string; code?: string }): string {
+  return [error.message, error.details, error.hint, error.code].filter(Boolean).join(" ").toLowerCase();
+}
+
+function mapBookError(error: { message?: string; details?: string; hint?: string; code?: string }): OrderFormState["error"] {
+  const text = rpcBlob(error);
+
+  if (text.includes("insufficient free")) return "free";
+  if (text.includes("book denied") || text.includes("not authorized") || text.includes("42501")) return "denied";
+  if (text.includes("bad address")) return "address";
+  if (text.includes("bad quantity")) return "quantity";
+  if (text.includes("not authenticated") || text.includes("jwt")) return "auth";
+  if (text.includes("not found") || text.includes("no balance")) return "product";
+  return "save";
 }
 
 export async function createOrder(
@@ -62,6 +84,34 @@ export async function createOrder(
   if (scheduled && !datePattern.test(scheduled)) return { error: "save" };
 
   const supabase = await createClient();
+
+  const [balanceResult, heldResult] = await Promise.all([
+    supabase
+      .from("stock_balances")
+      .select("qty")
+      .eq("product_id", productId)
+      .eq("tenant_id", membership.tenantId)
+      .maybeSingle(),
+    supabase
+      .from("order_lines")
+      .select("product_id, qty, orders(status)")
+      .eq("tenant_id", membership.tenantId)
+      .eq("product_id", productId),
+  ]);
+
+  if (balanceResult.error || heldResult.error) {
+    return { error: "save" };
+  }
+
+  const balance = balanceResult.data as BalanceRow | null;
+  const onHand = balance?.qty ?? 0;
+  const held = heldByProduct((heldResult.data ?? []) as HeldRow[]).get(productId) ?? 0;
+  const available = freeQty(onHand, held);
+
+  if (amount > available) {
+    return { error: "free" };
+  }
+
   const { data, error } = await supabase.rpc("book_order", {
     cid: clientId,
     aid: addressId,
@@ -72,19 +122,7 @@ export async function createOrder(
   });
 
   if (error) {
-    if (error.message.includes("insufficient free")) {
-      return { error: "free" };
-    }
-    if (error.message.includes("book denied")) {
-      return { error: "denied" };
-    }
-    if (error.message.includes("bad address")) {
-      return { error: "address" };
-    }
-    if (error.message.includes("bad quantity")) {
-      return { error: "quantity" };
-    }
-    return { error: "save" };
+    return { error: mapBookError(error) };
   }
 
   if (!data) return { error: "save" };
@@ -112,10 +150,11 @@ export async function completeOrder(
   const { error } = await supabase.rpc("complete_order", { oid: orderId });
 
   if (error) {
-    if (error.message.includes("bad status")) {
+    const text = rpcBlob(error);
+    if (text.includes("bad status")) {
       return { error: "status" };
     }
-    if (error.message.includes("book denied")) {
+    if (text.includes("book denied")) {
       return { error: "denied" };
     }
     return { error: "save" };
@@ -145,10 +184,11 @@ export async function cancelOrder(
   const { error } = await supabase.rpc("cancel_order", { oid: orderId });
 
   if (error) {
-    if (error.message.includes("bad status")) {
+    const text = rpcBlob(error);
+    if (text.includes("bad status")) {
       return { error: "status" };
     }
-    if (error.message.includes("book denied")) {
+    if (text.includes("book denied")) {
       return { error: "denied" };
     }
     return { error: "save" };

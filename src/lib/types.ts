@@ -12,10 +12,16 @@ export type OrderStatus = "open" | "in_delivery" | "completed" | "cancelled";
 
 export interface OrderSummary {
   id: string;
+  clientId: string;
   clientName: string;
   status: OrderStatus;
   scheduledOn: string | null;
   heldDays: number | null;
+}
+
+export interface ClientOrderFilter {
+  id: string;
+  name: string;
 }
 
 export interface ClientSummary {
@@ -52,6 +58,8 @@ export interface NotePhraseOption {
 export interface ProductSummary {
   id: string;
   name: string;
+  onHand: number;
+  reserved: number;
   available: number;
 }
 

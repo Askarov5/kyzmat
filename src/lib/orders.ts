@@ -3,6 +3,24 @@ import type { OrderStatus } from "@/lib/types";
 
 const terminal: OrderStatus[] = ["completed", "cancelled"];
 
+export function orderCode(id: string): string {
+  const hex = id.replace(/-/g, "").toUpperCase();
+  return hex.slice(-8);
+}
+
+export function orderMatchesQuery(id: string, clientName: string, query: string): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+
+  const code = orderCode(id).toLowerCase();
+  const bare = id.replace(/-/g, "").toLowerCase();
+  return (
+    clientName.toLowerCase().includes(needle) ||
+    code.includes(needle.replace(/^#/, "")) ||
+    bare.includes(needle.replace(/-/g, ""))
+  );
+}
+
 export function isOrderStatus(value: string): value is OrderStatus {
   return value === "open" || value === "in_delivery" || value === "completed" || value === "cancelled";
 }

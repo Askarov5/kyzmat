@@ -40,7 +40,7 @@ Company names, product names, and client names are stored as written. Do not mac
 ## Page chrome
 
 - `PageFrame` wraps every screen: sticky header, then `<main id="main">` with one `Slip`.
-- Header: one row. Wordmark `KYZMAT` linking to `/` with `translate="no"`, the company name when it fits, then the language words and sign-out.
+- Header: one row. Wordmark is `Logo`: one rounded slip with a dog-ear cut and a smaller unit square in that cut (header white reads as the fold), in `currentColor`, plus the word `KYZMAT`. It links to `/` with `translate="no"` on the left. On the right, `AccountMenu` shows the company name (not a person name) with a user icon. The open menu has no language caption: full-width equal KY/RU chips (`.lang-set`, `aria-label` only), owner invite as an explicit code link, and sign-out as quiet danger text that arms a confirm. No second header row. Company, client, and product names stay untranslated.
 - The slip is one white card: `rounded-2xl`, a hairline border, and a small shadow. One card per screen.
 - App screens add `AppShell`. The dock order is Clients, Orders, Products, Due. A section that is not built yet is a disabled item, not a dead link. The current item uses `aria-current="page"` and a primary tint.
 - Dock and header are `z-20`. The skip link is `z-30`. Main content clears the dock with `pb-28`. `scroll-padding-top` is `calc(4rem + env(safe-area-inset-top))`.
@@ -113,14 +113,17 @@ A client phone is optional. When it is filled, store it with `toE164`. A local `
 ## Language
 
 - Dictionaries live in `src/i18n/messages.ts` with a matching key on `Messages`. Add Kyrgyz and Russian together. Missing Russian falls back to Kyrgyz, never to English.
-- The visible `lang` is the active locale. The switch is two text buttons in `.lang-set` on the same row as the wordmark. The pressed language is primary text on a primary tint, the same mark as the current dock item. The primary fill stays on the next action. Below 380px the company name hides so the language words stay whole.
+- The visible `lang` is the active locale. Language lives inside `AccountMenu` as two equal full-width `.lang-set` buttons (no visible “Тил / Язык” label). The pressed language is primary text on a primary tint, the same mark as the current dock item. The primary fill stays on the next action.
 - Default locale is Kyrgyz.
 - Write short sentences a counter clerk can read outdoors. No jargon, no English in the UI.
 
 ## Lists of records
 
-- A record list is ruled rows inside one rounded list, not a table and not a stack of cards. An order status is a Tailgrids badge.
-- The row is a link of at least 48px, with the name first and the secondary fact (phone, available count) in mute.
+- Every list page shares one title row: page title on the left (`min-w-0 flex-1`), primary Add on the right (`ButtonLink` with plus icon + add label, `shrink-0`). Same lane, never stacked.
+- Product and order lists stay ruled rows inside one rounded list, not a table. An order status is a Tailgrids badge. Each order shows a short code (`orderCode`: last 8 hex of the id, prefixed `#`) on the list and on the detail header. Order search is icon + placeholder only and matches that code, the full id, or the client name. A filter button sits on the same lane as search; it opens a dropdown with client and status Comboboxes, one primary Apply, and clear when filters are active (`?clientId=`, `?status=`). An active-filter count badge marks the button. Product list rows keep compact icon counts (`StockFigures` `size="row"`). Product detail uses `size="card"`: free qty is the hero with a visible label and promise line, on-hand and held are labeled rows, and a mute equation teaches free = on-hand − held. Zero free uses danger text. Detail chrome matches client/order (BackIcon beside the name). Receive stays the one primary warehouse action; correct stock is a quiet control that opens a confirm-style panel.
+- The clients list is find-first: that title row, then full-width search with a search icon and placeholder only (no visible label; `aria-label` from `messages.search`). Each client is its own raised tile (`rounded-lg`, hairline, soft shadow) with gap between tiles. On the left, add-order is a vertical action strip (icon + label, ≥48px). The middle opens the client. On the right, call is `tel:` when a phone exists. Zero hits show `noMatch` plus one primary Add; an empty shop shows `noClients` plus Add. Product search uses the same icon + placeholder pattern.
+- The client detail Slip is call-first and compact: back beside the name, one primary Call (number on the button is allowed here as the dial target), secondary add-order, then a choice that opens that client’s orders (`/orders?clientId=…`). Service dates render only when present. Address and note section titles share a row with a compact `DiscloseTrigger` (+ add). Lists stay ruled. Opening add shows a tinted bordered `DisclosePanel` with its own title and cancel; Save lives only inside that panel. Address panel may start open when the client has no address.
+- The order detail Slip mirrors that grammar: back icon beside the **client name** (links to the client), status as the same Badge colors as the orders list, holding days as mute text beside the badge. Call is primary when a phone exists; a secondary choice opens the client card. Address, product+qty, scheduled date, and note are ruled rows with icons—not a flat label/value sheet. Open orders show one primary Complete; Cancel is a quiet danger text control that arms a confirm panel (same pattern as archive).
 - Search filters the loaded list on the device. Format numbers inside the client component. Do not pass `Intl.NumberFormat` from a server component.
 - Cap a list query at 500 rows.
 
@@ -132,4 +135,4 @@ A client phone is optional. When it is filled, store it with `toE164`. A local `
 4. Empty state and a distinct query-failure alert.
 5. Thumb reach: the primary action stays in the form, and the dock stays the way to change sections.
 
-Orders is the list of open work. Due stays in the dock as a disabled item until that section exists.
+Orders is the list of open work. A client card secondary choice opens `/orders?clientId=…` and pre-fills the client filter Combobox. Due stays in the dock as a disabled item until that section exists.

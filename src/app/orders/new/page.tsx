@@ -71,10 +71,13 @@ export default async function NewOrderPage({
     const balance = row.stock_balances as BalanceRow | BalanceRow[] | null;
     const onHand = Array.isArray(balance) ? (balance[0]?.qty ?? 0) : (balance?.qty ?? 0);
     const productId = row.id as string;
+    const reserved = held.get(productId) ?? 0;
     return {
       id: productId,
       name: row.name as string,
-      available: freeQty(onHand, held.get(productId) ?? 0),
+      onHand,
+      reserved,
+      available: freeQty(onHand, reserved),
     };
   });
 
@@ -106,6 +109,7 @@ export default async function NewOrderPage({
           addresses={addresses}
           products={products}
           messages={messages}
+          locale={membership.locale}
           initialClientId={knownClient}
         />
       )}

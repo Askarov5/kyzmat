@@ -41,6 +41,7 @@ interface ComboboxProps {
   required?: boolean;
   disabled?: boolean;
   startOpen?: boolean;
+  initialId?: string;
   onPick?: (id: string) => void;
   addLabel?: string;
   queryName?: string;
@@ -55,15 +56,17 @@ export function Combobox({
   required = false,
   disabled = false,
   startOpen = false,
+  initialId = "",
   onPick,
   addLabel,
   queryName,
 }: ComboboxProps) {
-  const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState("");
+  const initialOption = initialId ? options.find((option) => option.id === initialId) : undefined;
+  const [query, setQuery] = useState(initialOption?.label ?? "");
+  const [selectedId, setSelectedId] = useState(initialOption?.id ?? "");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [adding, setAdding] = useState(false);
-  const [open, setOpen] = useState(startOpen);
+  const [open, setOpen] = useState(startOpen && !initialOption);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = `${name}-list`;

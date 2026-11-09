@@ -1,7 +1,7 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { signOut } from "@/app/actions/session";
-import { LocaleSwitch } from "@/components/locale-switch";
+import Link from "next/link";
+import { AccountMenu } from "@/components/account-menu";
+import { Logo } from "@/components/logo";
 import { Slip } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 import type { Locale } from "@/lib/types";
@@ -24,38 +24,22 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-white px-4 shadow-xs pt-[max(0.25rem,env(safe-area-inset-top))]">
       <div className="flex min-h-12 items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-baseline gap-2">
-          <Link
-            href="/"
-            className="inline-flex min-h-12 shrink-0 items-center text-base font-semibold tracking-tight text-primary-500"
-            translate="no"
-          >
-            {messages.appName}
-          </Link>
-          {companyName ? (
-            companyHref ? (
-              <Link
-                href={companyHref}
-                className="min-w-0 truncate text-sm text-mute"
-                title={companyName}
-              >
-                {companyName}
-              </Link>
-            ) : (
-              <p className="min-w-0 truncate text-sm text-mute" title={companyName}>
-                {companyName}
-              </p>
-            )
-          ) : null}
+        <Link
+          href="/"
+          className="inline-flex min-h-12 shrink-0 items-center text-primary-500"
+          translate="no"
+        >
+          <Logo name={messages.appName} />
+        </Link>
+        <div className="ml-auto flex min-w-0 shrink-0 items-center">
+          <AccountMenu
+            locale={locale}
+            messages={messages}
+            companyName={companyName}
+            companyHref={companyHref}
+            showSignOut={showSignOut}
+          />
         </div>
-        <LocaleSwitch locale={locale} messages={messages} />
-        {showSignOut ? (
-          <form action={signOut} className="shrink-0">
-            <button type="submit" className="sign-out min-h-12 px-2 text-sm font-semibold text-mute">
-              {messages.logout}
-            </button>
-          </form>
-        ) : null}
       </div>
     </header>
   );
