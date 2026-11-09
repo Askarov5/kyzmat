@@ -71,12 +71,20 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const client = joinedClient(data.clients as ClientJoin | ClientJoin[] | null);
   const addressLine = joinedLine(data.addresses as LineJoin | LineJoin[] | null);
   const lineRaw = data.order_lines as OrderLineJoin | OrderLineJoin[] | null;
-  const line = lineRaw ? (Array.isArray(lineRaw) ? lineRaw[0] : lineRaw) : null;
-  const product = line?.products
-    ? Array.isArray(line.products)
-      ? line.products[0]
-      : line.products
-    : null;
+  const orderLines = !lineRaw ? [] : Array.isArray(lineRaw) ? lineRaw : [lineRaw];
+  const productRows = orderLines.map((row, index) => {
+    const product = row.products
+      ? Array.isArray(row.products)
+        ? row.products[0]
+        : row.products
+      : null;
+
+    return {
+      key: `${product?.name ?? "line"}-${index}`,
+      name: product?.name ?? "",
+      qty: Number(row.qty),
+    };
+  }).filter((row) => row.name);
   const counts = new Intl.NumberFormat(membership.locale === "ru" ? "ru" : "ky");
   const dateFormat = new Intl.DateTimeFormat(membership.locale === "ru" ? "ru" : "ky", {
     dateStyle: "medium",
@@ -153,21 +161,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </div>
           </ListRow>
         ) : null}
-        {product?.name ? (
-          <ListRow ruled>
+        {productRows.map((row, index) => (
+          <ListRow key={row.key} ruled>
             <div className="flex min-h-12 items-center justify-between gap-3 py-2">
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-mute">{messages.orderProduct}</p>
-                <p className="truncate text-sm font-semibold">{product.name}</p>
+                {index === 0 ? (
+                  <p className="text-xs font-semibold text-mute">{messages.orderLines}</p>
+                ) : null}
+                <p className="truncate text-sm font-semibold">{row.name}</p>
               </div>
-              {line ? (
-                <p className="shrink-0 tabular-nums text-sm font-semibold">
-                  {counts.format(Number(line.qty))}
-                </p>
-              ) : null}
+              <p className="shrink-0 tabular-nums text-sm font-semibold">
+                {counts.format(row.qty)}
+              </p>
             </div>
           </ListRow>
-        ) : null}
+        ))}
         {data.scheduled_on ? (
           <ListRow ruled>
             <div className="flex min-h-12 items-center justify-between gap-3 py-2">

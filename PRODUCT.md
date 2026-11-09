@@ -36,13 +36,13 @@ The shop timezone starts as `Asia/Bishkek`. The first companies are set up with 
 
 Roles are owner and agent. Both can read clients, products, orders, and stock. The owner creates the company, adds products, receives stock, and corrects it. An agent reserves a quantity for a named client.
 
-A product name is the only required catalog field. Description, SKU, unit, maintenance interval, and reorder interval are optional. Size and model may live in the name. A maintenance interval is for equipment that stays at an address. A reorder interval is for goods the client buys again. A serial belongs to one physical unit, not the catalog row.
+A product requires a name and a price in whole soms. Description, SKU, unit, maintenance interval, and reorder interval are optional. Size and model may live in the name. A maintenance interval is for equipment that stays at an address. A reorder interval is for goods the client buys again. A serial belongs to one physical unit, not the catalog row.
 
 Stock is one warehouse pool. Available is calculated, never stored. Completion ships stock and writes a placement only when the product tracks installation.
 
 Kyrgyz is the default interface language. Russian is a full translation. Company, client, and product names are stored as written and are not translated.
 
-Orders, delivery status, completion, and the due list are specified and are not in the app yet. Clients and products are.
+Orders support multiple product lines with per-line quantities; book, complete, and cancel are in the app. Delivery status transition (`in_delivery`) and the due list are specified and are not built yet. Clients and products are.
 
 Open: the legal entity named on the pilot privacy notice, in Kyrgyz and in Russian, before any company beyond the first partner.
 

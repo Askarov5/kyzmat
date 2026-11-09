@@ -41,7 +41,7 @@ export default async function NewOrderPage({
       .limit(500),
     supabase
       .from("products")
-      .select("id, name, stock_balances(qty)")
+      .select("id, name, price_som, stock_balances(qty)")
       .eq("tenant_id", membership.tenantId)
       .eq("active", true)
       .order("name")
@@ -75,6 +75,7 @@ export default async function NewOrderPage({
     return {
       id: productId,
       name: row.name as string,
+      priceSom: Number(row.price_som ?? 0),
       onHand,
       reserved,
       available: freeQty(onHand, reserved),

@@ -21,18 +21,21 @@ export function ProductForm({ messages, locale, extraUnits }: ProductFormProps) 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [sku, setSku] = useState("");
+  const [priceSom, setPriceSom] = useState("");
   const errorText =
     state.error === "required"
       ? messages.required
-      : state.error === "owner"
-        ? messages.ownerOnly
-        : state.error === "interval"
-          ? messages.intervalInvalid
-          : state.error === "length"
-            ? messages.tooLong
-            : state.error
-              ? messages.saveFailed
-              : null;
+      : state.error === "price"
+        ? messages.priceInvalid
+        : state.error === "owner"
+          ? messages.ownerOnly
+          : state.error === "interval"
+            ? messages.intervalInvalid
+            : state.error === "length"
+              ? messages.tooLong
+              : state.error
+                ? messages.saveFailed
+                : null;
   const unitOptions = useMemo(() => {
     const seedIds = new Set(units.map((unit) => unit.id));
     const extras = extraUnits
@@ -86,6 +89,21 @@ export function ProductForm({ messages, locale, extraUnits }: ProductFormProps) 
           value={sku}
           onChange={(event) => setSku(event.target.value)}
         />
+      </label>
+      <label className="flex flex-col gap-2 text-sm font-semibold" htmlFor="product-price">
+        {messages.price}
+        <Field
+          id="product-price"
+          name="priceSom"
+          inputMode="numeric"
+          autoComplete="off"
+          required
+          value={priceSom}
+          aria-invalid={state.error === "price" ? true : undefined}
+          className="tabular-nums"
+          onChange={(event) => setPriceSom(event.target.value)}
+        />
+        <span className="text-sm font-normal text-mute">{messages.som}</span>
       </label>
       <Combobox
         name="unit"

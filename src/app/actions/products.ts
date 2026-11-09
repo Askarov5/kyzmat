@@ -12,6 +12,7 @@ export interface ProductFormState {
     | "owner"
     | "warehouse"
     | "quantity"
+    | "price"
     | "held"
     | "interval"
     | "length"
@@ -27,6 +28,21 @@ function wholeQuantity(value: FormDataEntryValue | null): number | null {
   }
 
   return Number(raw);
+}
+
+function wholePriceSom(value: FormDataEntryValue | null): number | null {
+  const raw = String(value ?? "").trim();
+
+  if (!/^[1-9]\d{0,8}$/.test(raw)) {
+    return null;
+  }
+
+  const amount = Number(raw);
+  if (amount < 1 || amount > 100000000) {
+    return null;
+  }
+
+  return amount;
 }
 
 function wholeOnHand(value: FormDataEntryValue | null): number | null {
@@ -57,12 +73,17 @@ export async function createProduct(
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const sku = String(formData.get("sku") ?? "").trim();
+  const priceSom = wholePriceSom(formData.get("priceSom"));
   const unit = optionalUnit(String(formData.get("unit") ?? ""), String(formData.get("newUnit") ?? ""));
   const maintenanceDays = optionalInterval(formData.get("maintenanceDays"));
   const reorderDays = optionalInterval(formData.get("reorderDays"));
 
   if (!name) {
     return { error: "required" };
+  }
+
+  if (!priceSom) {
+    return { error: "price" };
   }
 
   if (maintenanceDays === "invalid" || reorderDays === "invalid") {
@@ -81,6 +102,7 @@ export async function createProduct(
       name,
       description: description || null,
       sku: sku || null,
+      price_som: priceSom,
       unit,
       maintenance_days: maintenanceDays,
       reorder_days: reorderDays,

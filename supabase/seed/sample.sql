@@ -28,7 +28,7 @@ set
   invite_code = coalesce(public.tenants.invite_code, excluded.invite_code);
 
 insert into public.products (
-  id, tenant_id, name, description, sku, unit, maintenance_days, reorder_days, active
+  id, tenant_id, name, description, sku, unit, price_som, maintenance_days, reorder_days, active
 )
 values
   (
@@ -38,6 +38,7 @@ values
     'Үй үчүн негизги фильтр',
     'F10',
     'шт',
+    1200,
     180,
     30,
     true
@@ -49,6 +50,7 @@ values
     'Алмаштырылуучу картридж',
     'CAR1',
     'шт',
+    450,
     90,
     14,
     true
@@ -60,6 +62,7 @@ values
     'Чакан насос',
     'PMP',
     'шт',
+    8500,
     365,
     90,
     true
@@ -70,6 +73,7 @@ set
   description = excluded.description,
   sku = excluded.sku,
   unit = excluded.unit,
+  price_som = excluded.price_som,
   maintenance_days = excluded.maintenance_days,
   reorder_days = excluded.reorder_days,
   active = excluded.active;

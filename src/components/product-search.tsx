@@ -64,7 +64,12 @@ export function ProductSearch({ products, messages, locale }: ProductSearchProps
         {filtered.map((product) => (
           <ListRow key={product.id} ruled>
             <Link href={`/products/${product.id}`} className="flex min-h-12 flex-col justify-center gap-1 py-2">
-              <span className="break-words text-base font-semibold">{product.name}</span>
+              <span className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0 break-words text-base font-semibold">{product.name}</span>
+                <span className="shrink-0 tabular-nums text-sm font-semibold text-mute">
+                  {counts.format(product.priceSom)} {messages.som}
+                </span>
+              </span>
               <StockFigures
                 onHand={product.onHand}
                 reserved={product.reserved}

@@ -24,7 +24,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const [productResult, heldResult] = await Promise.all([
     supabase
       .from("products")
-      .select("id, name, description, sku, unit, maintenance_days, reorder_days, active, stock_balances(qty)")
+      .select(
+        "id, name, description, sku, price_som, unit, maintenance_days, reorder_days, active, stock_balances(qty)",
+      )
       .eq("id", id)
       .eq("tenant_id", membership.tenantId)
       .maybeSingle(),
@@ -51,7 +53,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const unit = data.unit as string | null;
   const maintenance = intervalTitle(Number(data.maintenance_days), membership.locale);
   const reorder = intervalTitle(Number(data.reorder_days), membership.locale);
+  const priceSom = Number(data.price_som ?? 0);
   const details = [
+    {
+      label: messages.price,
+      value: `${counts.format(priceSom)} ${messages.som}`,
+    },
     sku ? { label: messages.sku, value: sku } : null,
     unit ? { label: messages.unit, value: unitTitle(unit, membership.locale) } : null,
     maintenance ? { label: messages.maintenanceInterval, value: maintenance } : null,

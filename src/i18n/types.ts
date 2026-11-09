@@ -96,6 +96,9 @@ export interface Messages {
   noProducts: string;
   description: string;
   sku: string;
+  price: string;
+  som: string;
+  priceInvalid: string;
   unit: string;
   pickUnit: string;
   addUnit: string;
@@ -133,6 +136,12 @@ export interface Messages {
   pickProduct: string;
   orderProduct: string;
   orderAmount: string;
+  orderLines: string;
+  orderTotal: string;
+  addLine: string;
+  addLineTitle: string;
+  removeLine: string;
+  needLines: string;
   insufficientFree: string;
   bookDenied: string;
   needClient: string;

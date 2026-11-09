@@ -13,6 +13,7 @@ export interface OrderFormState {
     | "product"
     | "quantity"
     | "free"
+    | "lines"
     | "denied"
     | "auth"
     | "save"
@@ -24,12 +25,20 @@ export interface OrderStatusState {
 }
 
 interface BalanceRow {
+  product_id: string;
+  qty: number;
+}
+
+interface BookLine {
+  productId: string;
   qty: number;
 }
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function wholeQuantity(value: FormDataEntryValue | null): number | null {
+function wholeQuantity(value: unknown): number | null {
   const raw = String(value ?? "").trim();
 
   if (!/^[1-9]\d{0,5}$/.test(raw)) {
@@ -44,6 +53,49 @@ function wholeQuantity(value: FormDataEntryValue | null): number | null {
   return amount;
 }
 
+function parseBookLines(raw: FormDataEntryValue | null): BookLine[] | null {
+  if (raw == null || String(raw).trim() === "") {
+    return null;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(String(raw));
+  } catch {
+    return null;
+  }
+
+  if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 50) {
+    return null;
+  }
+
+  const lines: BookLine[] = [];
+  const seen = new Set<string>();
+
+  for (const item of parsed) {
+    if (!item || typeof item !== "object") {
+      return null;
+    }
+
+    const row = item as { productId?: unknown; qty?: unknown };
+    const productId = String(row.productId ?? "");
+    const qty = wholeQuantity(row.qty);
+
+    if (!uuidPattern.test(productId) || !qty) {
+      return null;
+    }
+
+    if (seen.has(productId)) {
+      return null;
+    }
+
+    seen.add(productId);
+    lines.push({ productId, qty });
+  }
+
+  return lines;
+}
+
 function rpcBlob(error: { message?: string; details?: string; hint?: string; code?: string }): string {
   return [error.message, error.details, error.hint, error.code].filter(Boolean).join(" ").toLowerCase();
 }
@@ -55,6 +107,7 @@ function mapBookError(error: { message?: string; details?: string; hint?: string
   if (text.includes("book denied") || text.includes("not authorized") || text.includes("42501")) return "denied";
   if (text.includes("bad address")) return "address";
   if (text.includes("bad quantity")) return "quantity";
+  if (text.includes("bad lines")) return "lines";
   if (text.includes("not authenticated") || text.includes("jwt")) return "auth";
   if (text.includes("not found") || text.includes("no balance")) return "product";
   return "save";
@@ -72,51 +125,54 @@ export async function createOrder(
 
   const clientId = String(formData.get("clientId") ?? "");
   const addressId = String(formData.get("addressId") ?? "");
-  const productId = String(formData.get("productId") ?? "");
-  const amount = wholeQuantity(formData.get("qty"));
+  const lines = parseBookLines(formData.get("lines"));
   const scheduled = String(formData.get("scheduledOn") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
 
   if (!clientId) return { error: "required" };
   if (!addressId) return { error: "address" };
-  if (!productId) return { error: "product" };
-  if (!amount) return { error: "quantity" };
+  if (!lines) return { error: "lines" };
   if (scheduled && !datePattern.test(scheduled)) return { error: "save" };
 
+  const productIds = lines.map((line) => line.productId);
   const supabase = await createClient();
 
   const [balanceResult, heldResult] = await Promise.all([
     supabase
       .from("stock_balances")
-      .select("qty")
-      .eq("product_id", productId)
+      .select("product_id, qty")
       .eq("tenant_id", membership.tenantId)
-      .maybeSingle(),
+      .in("product_id", productIds),
     supabase
       .from("order_lines")
       .select("product_id, qty, orders(status)")
       .eq("tenant_id", membership.tenantId)
-      .eq("product_id", productId),
+      .in("product_id", productIds),
   ]);
 
   if (balanceResult.error || heldResult.error) {
     return { error: "save" };
   }
 
-  const balance = balanceResult.data as BalanceRow | null;
-  const onHand = balance?.qty ?? 0;
-  const held = heldByProduct((heldResult.data ?? []) as HeldRow[]).get(productId) ?? 0;
-  const available = freeQty(onHand, held);
+  const onHandByProduct = new Map(
+    ((balanceResult.data ?? []) as BalanceRow[]).map((row) => [row.product_id, row.qty]),
+  );
+  const heldMap = heldByProduct((heldResult.data ?? []) as HeldRow[]);
 
-  if (amount > available) {
-    return { error: "free" };
+  for (const line of lines) {
+    const onHand = onHandByProduct.get(line.productId) ?? 0;
+    const held = heldMap.get(line.productId) ?? 0;
+    const available = freeQty(onHand, held);
+
+    if (line.qty > available) {
+      return { error: "free" };
+    }
   }
 
   const { data, error } = await supabase.rpc("book_order", {
     cid: clientId,
     aid: addressId,
-    pid: productId,
-    amount,
+    lines: lines.map((line) => ({ product_id: line.productId, qty: line.qty })),
     scheduled: scheduled || null,
     note_text: note || null,
   });

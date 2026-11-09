@@ -80,22 +80,22 @@ The shared code does not clear a removal. Joining with the code rejects a user w
 
 ### The order
 
-One order holds one product and one whole amount from 1 through 100000. Any other amount alerts and writes nothing. A second product is a second order. Upgrade when one visit must promise two products.
+One order holds one or more products. Each line is a whole amount from 1 through 100000. Any other amount alerts and writes nothing. The same product cannot appear twice on one order.
 
 Agents and the owner open the same form. Warehouse does not.
 
 - Clients: the search stays. Each row and the client card get one action, add order. The form opens with that client set. Address choices are that client's addresses, as the trial already does.
-- Orders: add order opens the same form with the client empty. The person picks the client, then the address, then the product, then the amount.
+- Orders: add order opens the same form with the client empty. The person picks the client, then the address, then stages product lines (product + amount, Add into a list), then saves.
 
-The date and the note that the trial already collects stay on the form. One primary button confirms the booking. The button is disabled while it saves.
+The date and the note that the trial already collects stay on the form. One primary button confirms the booking. The button is disabled while it saves or while the line list is empty.
 
-The booking is one transaction. It locks that product's `stock_balances` row, computes free as `qty` minus the amounts on that product's lines whose orders are `open` or `in_delivery`, and inserts the order and its one line only when the amount is not greater than free. Otherwise it alerts and writes nothing. On-hand does not change at booking.
+The booking is one transaction. It locks each line's `stock_balances` row in product-id order, computes free as `qty` minus the amounts on that product's lines whose orders are `open` or `in_delivery`, and inserts the order and all lines only when every amount is not greater than free. Otherwise it alerts and writes nothing. On-hand does not change at booking.
 
 This pass does not add a control that sets `in_delivery`. New orders stay `open` until complete or cancel. The free-stock sum still counts `in_delivery` so an existing row in that status keeps its hold.
 
-The order screen shows the saved product name and the amount. That is where complete and cancel live.
+The order screen shows every saved product name and amount. That is where complete and cancel live.
 
-Complete is a control on that screen for the agent or the owner. Warehouse has no complete control. In one transaction it locks the order and that product's `stock_balances` row. It applies only when the status is still `open` or `in_delivery`. Otherwise it alerts and writes nothing: no status change, no ship move, and no quantity change. When it applies, it sets the order to `completed`, inserts a `ship` stock move for that amount, and decrements `stock_balances.qty` by the same amount in that same write, so the hold does not keep subtracting after on-hand has dropped.
+Complete is a control on that screen for the agent or the owner. Warehouse has no complete control. In one transaction it locks the order and each line's `stock_balances` row in product-id order. It applies only when the status is still `open` or `in_delivery`. Otherwise it alerts and writes nothing: no status change, no ship move, and no quantity change. When it applies, it sets the order to `completed`, and for each line inserts a `ship` stock move for that amount and decrements `stock_balances.qty` by the same amount in that same write, so the hold does not keep subtracting after on-hand has dropped.
 
 Cancel is a control on that screen for the agent or the owner, and only while the status is `open` or `in_delivery`. It sets `cancelled`, writes no stock move, and leaves `stock_balances.qty` unchanged. A completed order cannot be cancelled by this control.
 
@@ -125,9 +125,9 @@ Client search by name or phone digits. Oblast, then raion or city. Kyrgyz and Ru
 
 ## Success Criteria
 
-- An agent searches a real client by phone, starts an order from the row or the card, and saves one product and an amount from 1 to 100000. The order screen shows that product and amount.
-- The same form started from Orders uses the same locked check. A second booking whose amount is greater than free fails and writes nothing.
-- Completing that order drops on-hand by the amount and ends the hold in the same save. Cancelling while it is open releases the hold and leaves on-hand unchanged.
+- An agent searches a real client by phone, starts an order from the row or the card, stages one or more products each with an amount from 1 to 100000, and saves. The order screen shows every product and amount.
+- The same form started from Orders uses the same locked check. A booking whose amount on any line is greater than free fails and writes nothing.
+- Completing that order drops on-hand by each line amount and ends the hold in the same save. Cancelling while it is open releases the hold and leaves on-hand unchanged.
 - The product list's free number matches that check. An agent cannot receive or correct. A warehouse member can, and cannot open the order form.
 - A new phone joins with the company code as an agent and does not create a company. After removal, the next request shows the notice and ends the session. The same code still rejects that person.
 - Every new sentence exists in Kyrgyz and in Russian.

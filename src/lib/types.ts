@@ -59,6 +59,7 @@ export interface NotePhraseOption {
 export interface ProductSummary {
   id: string;
   name: string;
+  priceSom: number;
   onHand: number;
   reserved: number;
   available: number;
