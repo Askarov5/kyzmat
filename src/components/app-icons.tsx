@@ -17,6 +17,23 @@ export function PhoneIcon({ className = base }: IconProps) {
   );
 }
 
+export function WhatsAppIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M10 3.4a6.6 6.6 0 0 0-5.7 9.9L3.5 16.5l3.3-.8A6.6 6.6 0 1 0 10 3.4Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7.6 8.2c.2-.4.4-.4.6-.4h.4c.2 0 .3 0 .4.3l.5 1.2c.1.2 0 .3-.1.5l-.3.4c-.1.1-.1.3 0 .4.4.6 1 1.1 1.6 1.4.2.1.3.1.4 0l.5-.4c.1-.1.3-.1.4 0l1.1.6c.2.1.3.2.3.4v.4c0 .2 0 .4-.4.6-.3.2-.7.3-1.1.2A5 5 0 0 1 7.4 9c0-.4.1-.7.2-.8Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function PinIcon({ className = base }: IconProps) {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>

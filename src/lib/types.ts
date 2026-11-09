@@ -28,6 +28,7 @@ export interface ClientSummary {
   id: string;
   displayName: string;
   phoneE164: string | null;
+  placeLine: string | null;
 }
 
 export interface LocalityOption {

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { OrderIcon, PhoneIcon, SearchIcon } from "@/components/app-icons";
+import { OrderIcon, PhoneIcon, PinIcon, SearchIcon, WhatsAppIcon } from "@/components/app-icons";
 import { ButtonLink, Field } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 import type { ClientSummary } from "@/lib/types";
@@ -77,10 +77,10 @@ export function ClientSearch({ clients, messages, canBook }: ClientSearchProps) 
               {canBook ? (
                 <Link
                   href={`/orders/new?clientId=${client.id}`}
-                  className="flex w-[4.75rem] shrink-0 flex-col items-center justify-center gap-1 border-r border-line bg-field px-1.5 text-center text-[11px] font-semibold leading-tight text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                  className="flex w-12 shrink-0 items-center justify-center border-r border-line bg-field text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                  aria-label={messages.addOrder}
                 >
                   <OrderIcon className="size-5" />
-                  <span className="text-balance">{messages.addOrder}</span>
                 </Link>
               ) : null}
               <Link
@@ -90,22 +90,32 @@ export function ClientSearch({ clients, messages, canBook }: ClientSearchProps) 
                 <span className="break-words text-base font-semibold leading-snug">
                   {client.displayName}
                 </span>
-                {client.phoneE164 ? (
-                  <span className="flex items-center gap-1 text-sm tabular-nums text-mute">
-                    <PhoneIcon className="size-3.5 shrink-0" />
-                    {client.phoneE164}
+                {client.placeLine ? (
+                  <span className="flex min-w-0 items-center gap-1 text-sm text-mute">
+                    <PinIcon className="size-3.5 shrink-0" />
+                    <span className="truncate">{client.placeLine}</span>
                   </span>
                 ) : null}
               </Link>
               {client.phoneE164 ? (
-                <a
-                  href={`tel:${client.phoneE164}`}
-                  className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 border-l border-line bg-field text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
-                  aria-label={`${messages.call} ${client.phoneE164}`}
-                >
-                  <PhoneIcon className="size-5" />
-                  <span className="text-[11px] font-semibold">{messages.call}</span>
-                </a>
+                <>
+                  <a
+                    href={`https://wa.me/${phoneDigits(client.phoneE164)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-12 shrink-0 items-center justify-center border-l border-line bg-field text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                    aria-label={`${messages.whatsapp} ${client.phoneE164}`}
+                  >
+                    <WhatsAppIcon className="size-5" />
+                  </a>
+                  <a
+                    href={`tel:${client.phoneE164}`}
+                    className="flex w-12 shrink-0 items-center justify-center border-l border-line bg-field text-stamp touch-manipulation transition-[background-color,transform] duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] [@media(hover:hover)]:hover:bg-row"
+                    aria-label={`${messages.call} ${client.phoneE164}`}
+                  >
+                    <PhoneIcon className="size-5" />
+                  </a>
+                </>
               ) : null}
             </div>
           </li>

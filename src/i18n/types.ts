@@ -55,6 +55,7 @@ export interface Messages {
   noteTextRequired: string;
   archive: string;
   call: string;
+  whatsapp: string;
   back: string;
   language: string;
   accountMenu: string;

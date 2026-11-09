@@ -222,3 +222,26 @@ export function placeTitle(place: Place, locale: Locale): string {
 
   return locale === "ru" ? `${name} район` : `${name} району`;
 }
+
+export function placeLineFromLocalityKy(nameKy: string, locale: Locale): string {
+  const matches = places.filter((place) => place.nameKy === nameKy);
+  const child = matches.find((place) => place.parentId) ?? matches[0];
+
+  if (!child) {
+    return nameKy;
+  }
+
+  const childName = locale === "ru" ? child.nameRu : child.nameKy;
+
+  if (!child.parentId) {
+    return childName;
+  }
+
+  const parent = placeById(child.parentId);
+  if (!parent) {
+    return childName;
+  }
+
+  const parentName = locale === "ru" ? parent.nameRu : parent.nameKy;
+  return `${childName}, ${parentName}`;
+}
