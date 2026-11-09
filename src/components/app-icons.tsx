@@ -146,3 +146,37 @@ export function UserIcon({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function GoogleIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" className={className}>
+      <path
+        fill="#4285F4"
+        d="M18.2 10.2c0-.6-.1-1.2-.2-1.7H10v3.3h4.6c-.2 1.1-.8 2-1.7 2.6v2.2h2.8c1.6-1.5 2.5-3.7 2.5-6.4Z"
+      />
+      <path
+        fill="#34A853"
+        d="M10 18.5c2.3 0 4.3-.8 5.7-2.1l-2.8-2.2c-.8.5-1.8.8-2.9.8-2.2 0-4.1-1.5-4.8-3.5H2.3v2.2C3.7 16.7 6.6 18.5 10 18.5Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.2 11.5c-.2-.5-.3-1.1-.3-1.7s.1-1.2.3-1.7V5.9H2.3C1.7 7.1 1.4 8.5 1.4 9.8c0 1.3.3 2.7.9 3.9l2.9-2.2Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M10 4.9c1.3 0 2.4.4 3.3 1.3l2.5-2.5C14.3 2.3 12.3 1.5 10 1.5 6.6 1.5 3.7 3.3 2.3 6.1l2.9 2.2C5.9 6.4 7.8 4.9 10 4.9Z"
+      />
+    </svg>
+  );
+}
+
+export function AppleIcon({ className = base }: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" className={className}>
+      <path
+        fill="currentColor"
+        d="M13.7 3.4c-.7.8-1.8 1.4-2.9 1.3-.1-1.1.4-2.2 1-2.9.7-.8 1.9-1.4 2.9-1.4.1 1.1-.3 2.2-1 3Zm2.7 8c0 2.4 2.1 3.2 2.1 3.2-.1.4-.7 1.5-1.5 2.3-.8.8-1.6 1.6-2.8 1.6-1.1 0-1.5-.7-2.9-.7s-1.8.7-2.9.7c-1.2 0-2.1-.9-2.9-1.7C3.6 14.8 2.7 12 3.8 9.7c.6-1.2 1.7-2 2.9-2 1.1 0 2 .8 2.9.8s2.1-.9 3.5-.8c.6 0 2.2.2 3.2 1.7-.1.1-1.9 1.1-1.9 3.6Z"
+      />
+    </svg>
+  );
+}

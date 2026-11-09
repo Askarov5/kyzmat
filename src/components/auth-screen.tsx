@@ -16,24 +16,36 @@ export function AuthScreen({ intent, locale, messages, failed }: AuthScreenProps
 
   return (
     <PageFrame locale={locale} messages={messages}>
-      <h1 className="text-pretty text-3xl font-semibold tracking-tight">{signingUp ? messages.signup : messages.login}</h1>
-      <p className="mt-2 max-w-[28ch] text-base text-mute">
-        {signingUp ? messages.signupLead : messages.loginLead}
-      </p>
-      <div className="mt-6">
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-pretty text-3xl font-semibold tracking-tight">
+            {signingUp ? messages.signup : messages.login}
+          </h1>
+          <p className="max-w-[28ch] text-base leading-snug text-mute">
+            {signingUp ? messages.signupLead : messages.loginLead}
+          </p>
+        </header>
+
         <SignInPanel intent={intent} messages={messages} failed={failed} />
+
+        <p className="border-t border-line pt-4 text-sm text-mute">
+          {signingUp ? (
+            <Link
+              href="/login"
+              className="inline-flex min-h-12 items-center font-semibold text-stamp touch-manipulation"
+            >
+              {messages.haveCompany}
+            </Link>
+          ) : (
+            <Link
+              href="/signup"
+              className="inline-flex min-h-12 items-center font-semibold text-stamp touch-manipulation"
+            >
+              {messages.openCompany}
+            </Link>
+          )}
+        </p>
       </div>
-      <p className="mt-auto pt-8">
-        {signingUp ? (
-          <Link href="/login" className="inline-flex min-h-12 items-center text-base font-semibold text-stamp">
-            {messages.haveCompany}
-          </Link>
-        ) : (
-          <Link href="/signup" className="inline-flex min-h-12 items-center text-base font-semibold text-stamp">
-            {messages.openCompany}
-          </Link>
-        )}
-      </p>
     </PageFrame>
   );
 }

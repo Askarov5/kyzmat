@@ -27,7 +27,9 @@ export function AccountMenu({
   const [logoutArmed, setLogoutArmed] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
-  const label = companyName?.trim() || messages.accountMenu;
+  const companyLabel = companyName?.trim() || "";
+  const hasCompany = companyLabel.length > 0;
+  const label = hasCompany ? companyLabel : messages.accountMenu;
 
   useEffect(() => {
     if (!open) {
@@ -63,18 +65,28 @@ export function AccountMenu({
     <div ref={rootRef} className="relative shrink-0">
       <button
         type="button"
-        className="inline-flex min-h-12 max-w-[11rem] items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-mute touch-manipulation [@media(hover:hover)]:hover:bg-row"
+        className={
+          hasCompany
+            ? "inline-flex min-h-12 max-w-[11rem] items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-mute touch-manipulation [@media(hover:hover)]:hover:bg-row"
+            : "inline-flex size-12 items-center justify-center rounded-lg text-mute touch-manipulation [@media(hover:hover)]:hover:bg-row"
+        }
         aria-expanded={open}
         aria-controls={menuId}
         aria-haspopup="menu"
-        aria-label={companyName ? label : messages.accountMenu}
+        aria-label={label}
         onClick={() => setOpen((value) => !value)}
       >
         <UserIcon className="size-5 shrink-0 text-stamp" />
-        <span className="min-w-0 truncate" translate={companyName ? "no" : undefined}>
-          {label}
-        </span>
-        <ChevronIcon className={`size-4 shrink-0 transition-transform duration-160 ${open ? "rotate-180" : ""}`} />
+        {hasCompany ? (
+          <>
+            <span className="min-w-0 truncate" translate="no">
+              {companyLabel}
+            </span>
+            <ChevronIcon
+              className={`size-4 shrink-0 transition-transform duration-160 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? "rotate-180" : ""}`}
+            />
+          </>
+        ) : null}
       </button>
 
       {open ? (

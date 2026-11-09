@@ -22,11 +22,11 @@ export function SiteHeader({
   showSignOut = false,
 }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-white px-4 shadow-xs pt-[max(0.25rem,env(safe-area-inset-top))]">
-      <div className="flex min-h-12 items-center gap-2">
+    <header className="sticky top-0 z-20 border-b border-line bg-sheet px-4 shadow-xs pt-[max(0.35rem,env(safe-area-inset-top))]">
+      <div className="flex min-h-14 items-center gap-3">
         <Link
           href="/"
-          className="inline-flex min-h-12 shrink-0 items-center text-primary-500"
+          className="inline-flex min-h-12 shrink-0 items-center text-primary-500 touch-manipulation"
           translate="no"
         >
           <Logo name={messages.appName} />

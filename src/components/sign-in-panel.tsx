@@ -7,6 +7,7 @@ import {
   verifyWhatsAppCode,
   type AuthState,
 } from "@/app/actions/session";
+import { AppleIcon, GoogleIcon, WhatsAppIcon } from "@/components/app-icons";
 import type { Messages } from "@/i18n/types";
 import { createClient } from "@/lib/supabase/client";
 import { kyrgyzPhoneDraft } from "@/lib/phone";
@@ -38,6 +39,7 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
   const [missingName, setMissingName] = useState(false);
   const phone = checked.sentTo ?? sent.sentTo;
   const error = checked.error ?? sent.error;
+  const nationalDigits = phoneNumber.replace(/^\+996/, "");
 
   const errorText = missingName
     ? messages.required
@@ -67,10 +69,10 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {phone ? (
-        <form action={verifyCode} className="flex flex-col gap-3">
-          <p className="text-base">{messages.codeSent}</p>
+        <form action={verifyCode} className="flex flex-col gap-4">
+          <p className="text-base leading-snug text-mute">{messages.codeSent}</p>
           <input type="hidden" name="phone" value={phone} />
           <label className="flex flex-col gap-2 text-sm font-semibold">
             {messages.code}
@@ -84,16 +86,15 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
               className="text-center text-lg tracking-[0.3em]"
             />
           </label>
-          {errorText ? (
-            <Notice>
-              {errorText}
-            </Notice>
-          ) : null}
-          <Button disabled={verifying}>{verifying ? messages.saving : messages.continue}</Button>
+          {errorText ? <Notice>{errorText}</Notice> : null}
+          <Button disabled={verifying} className="w-full">
+            {verifying ? messages.saving : messages.continue}
+          </Button>
         </form>
       ) : (
-        <form action={sendCode} className="flex flex-col gap-3">
+        <form action={sendCode} className="flex flex-col gap-4">
           <input type="hidden" name="intent" value={intent} />
+          <input type="hidden" name="phone" value={phoneNumber} />
           {intent === "signup" ? (
             <label className="flex flex-col gap-2 text-sm font-semibold">
               {messages.companyName}
@@ -109,38 +110,70 @@ export function SignInPanel({ intent, messages, failed }: SignInPanelProps) {
               />
             </label>
           ) : null}
-          <label className="flex flex-col gap-2 text-sm font-semibold">
+          <label className="flex flex-col gap-2 text-sm font-semibold" htmlFor="auth-phone">
             {messages.phone}
-            <Field
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              spellCheck={false}
-              value={phoneNumber}
-              pattern={"\\+996[0-9]{9}"}
-              maxLength={13}
-              required
-              aria-invalid={error === "phone"}
-              onChange={(event) => setPhoneNumber(kyrgyzPhoneDraft(event.target.value))}
-              className="tabular-nums"
-            />
+            <span
+              className={`flex min-h-12 overflow-hidden rounded-lg border bg-field ${
+                error === "phone" ? "border-danger" : "border-line"
+              }`}
+            >
+              <span className="flex shrink-0 items-center border-r border-line bg-paper px-3 text-sm font-semibold tabular-nums text-mute">
+                +996
+              </span>
+              <input
+                id="auth-phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel-national"
+                spellCheck={false}
+                value={nationalDigits}
+                maxLength={9}
+                required
+                aria-invalid={error === "phone" ? true : undefined}
+                aria-describedby="auth-phone-prefix"
+                className="min-h-12 min-w-0 flex-1 bg-transparent px-3 text-base tabular-nums text-title-50 outline-none"
+                onChange={(event) => {
+                  const digits = event.target.value.replace(/\D/g, "").slice(0, 9);
+                  setPhoneNumber(kyrgyzPhoneDraft(`+996${digits}`));
+                }}
+              />
+            </span>
+            <span id="auth-phone-prefix" className="sr-only">
+              +996
+            </span>
           </label>
-          {errorText ? (
-            <Notice>
-              {errorText}
-            </Notice>
-          ) : null}
-          <Button disabled={sending}>{sending ? messages.saving : messages.continueWhatsApp}</Button>
+          {errorText ? <Notice>{errorText}</Notice> : null}
+          <Button disabled={sending} className="w-full gap-2">
+            <WhatsAppIcon className="size-5" />
+            {sending ? messages.saving : messages.continueWhatsApp}
+          </Button>
         </form>
       )}
-      <p className="py-1 text-center text-sm text-mute">{messages.or}</p>
-      <button type="button" className="choice text-center" onClick={() => withCompany("google")}>
-        {messages.continueGoogle}
-      </button>
-      <button type="button" className="choice text-center" onClick={() => withCompany("apple")}>
-        {messages.continueApple}
-      </button>
+
+      <div className="flex items-center gap-3" role="separator" aria-orientation="horizontal">
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-sm font-semibold text-mute">{messages.or}</span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          className="choice inline-flex items-center justify-center gap-2 font-semibold"
+          onClick={() => withCompany("google")}
+        >
+          <GoogleIcon className="size-5" />
+          {messages.continueGoogle}
+        </button>
+        <button
+          type="button"
+          className="choice inline-flex items-center justify-center gap-2 font-semibold"
+          onClick={() => withCompany("apple")}
+        >
+          <AppleIcon className="size-5" />
+          {messages.continueApple}
+        </button>
+      </div>
     </div>
   );
 }
