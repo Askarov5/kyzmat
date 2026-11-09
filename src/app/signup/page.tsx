@@ -1,8 +1,5 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signUp } from "@/app/actions/session";
-import { AuthForm } from "@/components/auth-form";
-import { LocaleSwitch } from "@/components/locale-switch";
+import { AuthScreen } from "@/components/auth-screen";
 import { getLocale } from "@/i18n/locale";
 import { messagesFor } from "@/i18n/messages";
 import { getMembership, getUserId } from "@/lib/auth";
@@ -21,21 +18,8 @@ export default async function SignupPage() {
   }
 
   const locale = await getLocale();
-  const messages = messagesFor(locale);
 
   return (
-    <main id="main" className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8">
-      <LocaleSwitch locale={locale} messages={messages} />
-      <h1 className="text-pretty text-3xl font-semibold">{messages.signup}</h1>
-      <AuthForm
-        action={signUp}
-        messages={messages}
-        mode="signup"
-        submitLabel={messages.createCompany}
-      />
-      <Link href="/login" className="inline-flex min-h-12 items-center text-base font-semibold text-stamp">
-        {messages.login}
-      </Link>
-    </main>
+    <AuthScreen intent="signup" locale={locale} messages={messagesFor(locale)} failed={false} />
   );
 }

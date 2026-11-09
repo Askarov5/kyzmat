@@ -17,8 +17,8 @@ export default async function NewClientPage({
       <Link href="/clients" className="inline-flex min-h-12 items-center text-sm font-semibold text-stamp">
         {messages.back}
       </Link>
-      <h1 className="text-pretty text-2xl font-semibold">{messages.addClient}</h1>
-      <ClientForm messages={messages} initialName={params.name ?? ""} />
+      <h1 className="text-pretty text-3xl font-semibold tracking-tight">{messages.addClient}</h1>
+      <ClientForm messages={messages} initialName={params.name ?? ""} locale={membership.locale} />
     </div>
   );
 }

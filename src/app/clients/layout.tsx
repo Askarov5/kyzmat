@@ -13,7 +13,13 @@ export default async function ClientsLayout({
   const messages = messagesFor(locale);
 
   return (
-    <AppShell locale={locale} messages={messages} companyName={membership.tenantName}>
+    <AppShell
+      locale={locale}
+      messages={messages}
+      companyName={membership.tenantName}
+      role={membership.role}
+      section="clients"
+    >
       {children}
     </AppShell>
   );

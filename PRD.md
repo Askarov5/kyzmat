@@ -228,7 +228,7 @@ Bottom navigation: **Clients**, **Orders**, **Products**, **Due**. Team and stoc
 
 Creating an owner creates the tenant, the owner membership, one warehouse, the timezone, and business focus `both`. The owner can set focus to `sales` for a company that only delivers, such as engine oil to oil-change shops.
 
-Inviting an agent sends an email link. On accept, they can look up clients and create orders.
+An agent signs in the same way as the owner: Google, Apple, or a WhatsApp code. Attaching that person to the company comes after the owner’s own sign-in works.
 
 **Acceptance**
 
@@ -467,7 +467,7 @@ One Next.js app. One Supabase project. No separate service for inventory.
 
 The browser talks to Postgres through the user session. Reservation and completion go through a single database function each, so the available check cannot be skipped by a modified client.
 
-Auth is email and password for the owner, and an email invite for agents.
+Auth is Google, Apple, or a one-time code sent on WhatsApp. The first session asks for the company name. Email and password are not a sign-in method. WhatsApp codes go through Supabase phone auth on the Twilio WhatsApp channel. Google and Apple use the project’s OAuth providers, and the allowed redirect is `/auth/callback`.
 
 “Today” and the 14-day due window use `tenants.timezone`.
 

@@ -1,56 +1,82 @@
 import Link from "next/link";
-import { signOut } from "@/app/actions/session";
-import { LocaleSwitch } from "@/components/locale-switch";
+import type { ReactNode } from "react";
+import { PageFrame } from "@/components/page-frame";
 import type { Messages } from "@/i18n/types";
-import type { Locale } from "@/lib/types";
+import type { Locale, MemberRole } from "@/lib/types";
 
 interface AppShellProps {
   locale: Locale;
   messages: Messages;
   companyName: string;
-  children: React.ReactNode;
+  role: MemberRole;
+  section: "clients" | "orders" | "products";
+  children: ReactNode;
 }
 
-const laterItems = ["orders", "products", "due"] as const;
+const dockItems = [
+  { key: "clients", href: "/clients", ready: true },
+  { key: "orders", href: "/orders", ready: true },
+  { key: "products", href: "/products", ready: true },
+  { key: "due", href: "/due", ready: false },
+] as const;
 
-export function AppShell({ locale, messages, companyName, children }: AppShellProps) {
+function dockLabel(label: string, key: (typeof dockItems)[number]["key"]) {
+  const splitAt = key === "orders" || key === "due" ? 8 : 0;
+  if (splitAt <= 0 || splitAt >= label.length) return label;
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">
-      <header className="flex items-center justify-between gap-3 px-4 pt-[max(1rem,env(safe-area-inset-top))]">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold" translate="no">
-            {messages.appName}
-          </p>
-          <p className="truncate text-sm text-ink/70">{companyName}</p>
+    <>
+      {label.slice(0, splitAt)}
+      <wbr />
+      {label.slice(splitAt)}
+    </>
+  );
+}
+
+export function AppShell({ locale, messages, companyName, role, section, children }: AppShellProps) {
+  const companyHref = role === "owner" ? "/company/invite" : undefined;
+  const dock = (
+    <nav className="dock pointer-events-none fixed inset-x-0 bottom-0" aria-label={messages.sections}>
+      <div className="pointer-events-auto mx-auto max-w-md border-t border-line bg-sheet pb-[env(safe-area-inset-bottom)]">
+        <div className="grid grid-cols-4 gap-1 px-1 py-1">
+          {dockItems.map((item) =>
+            item.ready ? (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`nav-item flex items-center justify-center px-0.5 text-center text-sm font-semibold leading-tight ${
+                  section === item.key ? "text-stamp" : "text-ink"
+                }`}
+                aria-current={section === item.key ? "page" : undefined}
+              >
+                {dockLabel(messages[item.key], item.key)}
+              </Link>
+            ) : (
+              <button
+                key={item.key}
+                type="button"
+                className="nav-item flex items-center justify-center px-0.5 text-center text-sm font-semibold leading-tight text-mute"
+                disabled
+              >
+                {dockLabel(messages[item.key], item.key)}
+                <span className="sr-only">{messages.sectionClosed}</span>
+              </button>
+            ),
+          )}
         </div>
-        <form action={signOut}>
-          <button type="submit" className="min-h-12 px-2 text-sm font-semibold">
-            {messages.logout}
-          </button>
-        </form>
-      </header>
-      <div className="px-4 pt-3">
-        <LocaleSwitch locale={locale} messages={messages} />
       </div>
-      <main id="main" className="flex-1 px-4 py-4 pb-28">
-        {children}
-      </main>
-      <nav className="dock fixed inset-x-0 bottom-0" aria-label={messages.clients}>
-        <div className="mx-auto grid max-w-md grid-cols-4">
-          <Link href="/clients" className="nav-item flex items-center justify-center text-sm font-semibold text-stamp" aria-current="page">
-            {messages.clients}
-          </Link>
-          {laterItems.map((item) => (
-            <span
-              key={item}
-              className="nav-item flex items-center justify-center text-center text-xs text-ink/40"
-              aria-disabled="true"
-            >
-              {messages[item]}
-            </span>
-          ))}
-        </div>
-      </nav>
-    </div>
+    </nav>
+  );
+
+  return (
+    <PageFrame
+      locale={locale}
+      messages={messages}
+      companyName={companyName}
+      companyHref={companyHref}
+      showSignOut
+      dock={dock}
+    >
+      {children}
+    </PageFrame>
   );
 }

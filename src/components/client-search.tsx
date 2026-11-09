@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ButtonLink, Field, ListRow } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 import type { ClientSummary } from "@/lib/types";
 import { phoneDigits } from "@/lib/phone";
@@ -9,9 +10,10 @@ import { phoneDigits } from "@/lib/phone";
 interface ClientSearchProps {
   clients: ClientSummary[];
   messages: Messages;
+  canBook: boolean;
 }
 
-export function ClientSearch({ clients, messages }: ClientSearchProps) {
+export function ClientSearch({ clients, messages, canBook }: ClientSearchProps) {
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const digits = phoneDigits(query);
@@ -35,7 +37,7 @@ export function ClientSearch({ clients, messages }: ClientSearchProps) {
       <label className="text-sm font-semibold" htmlFor="client-search">
         {messages.searchClient}
       </label>
-      <input
+      <Field
         id="client-search"
         value={query}
         role="combobox"
@@ -45,33 +47,37 @@ export function ClientSearch({ clients, messages }: ClientSearchProps) {
         autoComplete="off"
         inputMode="search"
         onChange={(event) => setQuery(event.target.value)}
-        className="field text-lg"
+        className="text-lg"
       />
-      <ul id="client-results" className="flex flex-col">
+      <ul id="client-results" className="overflow-hidden rounded-lg border border-line bg-white">
         {filtered.map((client) => (
-          <li key={client.id} className="list-row border-b border-line">
-            <Link
-              href={`/clients/${client.id}`}
-              className="flex min-h-12 flex-col justify-center py-2"
-            >
-              <span className="text-base font-semibold">{client.displayName}</span>
-              {client.phoneE164 ? (
-                <span className="text-sm tabular-nums text-ink/70">{client.phoneE164}</span>
+          <ListRow key={client.id} ruled>
+            <div className="flex min-h-12 items-center gap-2 py-2">
+              <Link href={`/clients/${client.id}`} className="flex min-w-0 flex-1 flex-col justify-center">
+                <span className="text-base font-semibold">{client.displayName}</span>
+                {client.phoneE164 ? (
+                  <span className="text-sm tabular-nums text-mute">{client.phoneE164}</span>
+                ) : null}
+              </Link>
+              {canBook ? (
+                <ButtonLink
+                  href={`/orders/new?clientId=${client.id}`}
+                  className="shrink-0 whitespace-nowrap px-3"
+                >
+                  {messages.addOrder}
+                </ButtonLink>
               ) : null}
-            </Link>
-          </li>
+            </div>
+          </ListRow>
         ))}
         {clients.length === 0 ? (
-          <li className="py-4 text-ink/70">{messages.noClients}</li>
+          <li className="py-4 text-mute">{messages.noClients}</li>
         ) : null}
         {showAdd ? (
           <li>
-            <Link
-              href={`/clients/new?name=${encodeURIComponent(query.trim())}`}
-              className="primary inline-flex items-center"
-            >
+            <ButtonLink href={`/clients/new?name=${encodeURIComponent(query.trim())}`}>
               {messages.addClient}
-            </Link>
+            </ButtonLink>
           </li>
         ) : null}
       </ul>

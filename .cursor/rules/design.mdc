@@ -1,0 +1,16 @@
+---
+description: KYZMAT screen and form standards
+alwaysApply: true
+---
+
+# Interface
+
+Before any UI change, follow `design.md`.
+
+- Phone in daylight. Light mode only. Noto Sans only, so Kyrgyz and Russian render. Tokens in `src/app/globals.css` are the free Tailgrids light theme.
+- Kyrgyz is the default. Add every string in Kyrgyz and Russian. Do not translate company, client, or product names.
+- Targets are at least 48px. Radius is 8px on controls and 16px on the card. Primary blue is the next action, the active language, and the current dock item.
+- One white card per screen. One primary button per form. Lists are ruled rows inside one rounded list. No tables, swipes, dark mode, or a second header.
+- Extend screens with `Button`, `ButtonLink`, `Field`, `Slip`, `ListRow`, and `Notice` from `src/components/ui.tsx`. Those wrap the free Tailgrids components.
+- Place entry is two comboboxes: oblast first, then only that oblast's raions and cities. The child list stays closed until an oblast is chosen.
+- Sign-in phone is `+996` plus exactly nine digits. A failed query is an alert, not an empty list.

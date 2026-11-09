@@ -2,11 +2,27 @@
 
 import { redirect } from "next/navigation";
 import { requireMembership } from "@/lib/auth";
+import { placeById, type Place } from "@/lib/places";
 import { toE164 } from "@/lib/phone";
 import { createClient } from "@/lib/supabase/server";
 
 export interface FormState {
-  error: "required" | "phone" | "locality" | "owner" | "save" | null;
+  error: "required" | "address" | "phone" | "oblast" | "locality" | "owner" | "save" | null;
+}
+
+function chosenPlace(formData: FormData): { error: "oblast" | "locality" } | { place: Place } {
+  const oblast = placeById(String(formData.get("oblastId") ?? ""));
+  const place = placeById(String(formData.get("localityId") ?? ""));
+
+  if (!oblast || oblast.parentId) {
+    return { error: "oblast" };
+  }
+
+  if (!place || place.parentId !== oblast.id) {
+    return { error: "locality" };
+  }
+
+  return { place };
 }
 
 export async function createClientRecord(
@@ -16,10 +32,22 @@ export async function createClientRecord(
   const membership = await requireMembership();
   const displayName = String(formData.get("displayName") ?? "").trim();
   const phoneRaw = String(formData.get("phone") ?? "");
+  const line = String(formData.get("line") ?? "").trim();
+  const chosen = chosenPlace(formData);
 
   if (!displayName) {
     return { error: "required" };
   }
+
+  if (!line) {
+    return { error: "address" };
+  }
+
+  if ("error" in chosen) {
+    return { error: chosen.error };
+  }
+
+  const place = chosen.place;
 
   let phone: string | null = null;
 
@@ -32,6 +60,16 @@ export async function createClientRecord(
   }
 
   const supabase = await createClient();
+  const { data: locality, error: localityError } = await supabase
+    .from("localities")
+    .select("id")
+    .eq("name_ky", place.nameKy)
+    .maybeSingle();
+
+  if (localityError || !locality) {
+    return { error: "save" };
+  }
+
   const { data, error } = await supabase
     .from("clients")
     .insert({
@@ -46,6 +84,17 @@ export async function createClientRecord(
     return { error: "save" };
   }
 
+  const { error: addressError } = await supabase.from("addresses").insert({
+    tenant_id: membership.tenantId,
+    client_id: data.id,
+    line,
+    locality_id: locality.id,
+  });
+
+  if (addressError) {
+    return { error: "save" };
+  }
+
   redirect(`/clients/${data.id}`);
 }
 
@@ -56,22 +105,32 @@ export async function addAddress(
   const membership = await requireMembership();
   const clientId = String(formData.get("clientId") ?? "");
   const line = String(formData.get("line") ?? "").trim();
-  const localityId = String(formData.get("localityId") ?? "");
+  const chosen = chosenPlace(formData);
 
   if (!line) {
-    return { error: "required" };
+    return { error: "address" };
   }
 
-  if (!localityId) {
-    return { error: "locality" };
+  if ("error" in chosen) {
+    return { error: chosen.error };
   }
 
   const supabase = await createClient();
+  const { data: locality, error: localityError } = await supabase
+    .from("localities")
+    .select("id")
+    .eq("name_ky", chosen.place.nameKy)
+    .maybeSingle();
+
+  if (localityError || !locality) {
+    return { error: "save" };
+  }
+
   const { error } = await supabase.from("addresses").insert({
     tenant_id: membership.tenantId,
     client_id: clientId,
     line,
-    locality_id: localityId,
+    locality_id: locality.id,
   });
 
   if (error) {

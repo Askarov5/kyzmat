@@ -1,4 +1,4 @@
-import { LocaleSwitch } from "@/components/locale-switch";
+import { PageFrame } from "@/components/page-frame";
 import { getLocale } from "@/i18n/locale";
 import { messagesFor } from "@/i18n/messages";
 
@@ -7,10 +7,9 @@ export default async function SetupPage() {
   const messages = messagesFor(locale);
 
   return (
-    <main id="main" className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-8">
-      <LocaleSwitch locale={locale} messages={messages} />
-      <h1 className="text-pretty text-3xl font-semibold">{messages.setupTitle}</h1>
-      <p className="text-pretty text-base leading-7">{messages.setupBody}</p>
-    </main>
+    <PageFrame locale={locale} messages={messages}>
+      <h1 className="text-pretty text-3xl font-semibold tracking-tight">{messages.setupTitle}</h1>
+      <p className="mt-4 max-w-[36ch] text-pretty text-base leading-7 text-mute">{messages.setupBody}</p>
+    </PageFrame>
   );
 }

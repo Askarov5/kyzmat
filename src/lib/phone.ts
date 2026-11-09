@@ -1,4 +1,16 @@
 const E164 = /^\+[1-9]\d{7,14}$/;
+const KYRGYZ_E164 = /^\+996\d{9}$/;
+
+export function kyrgyzPhoneDraft(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  const national = digits.startsWith("996") ? digits.slice(3, 12) : "";
+  return `+996${national}`;
+}
+
+export function toKyrgyzE164(input: string): string | null {
+  const draft = kyrgyzPhoneDraft(input);
+  return KYRGYZ_E164.test(draft) ? draft : null;
+}
 
 export function toE164(input: string): string | null {
   const trimmed = input.trim();

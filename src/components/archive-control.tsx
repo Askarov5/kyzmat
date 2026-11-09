@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { archiveClient } from "@/app/actions/clients";
+import { Button } from "@/components/ui";
 import type { Messages } from "@/i18n/types";
 
 interface ArchiveControlProps {
@@ -24,9 +25,7 @@ export function ArchiveControl({ clientId, messages }: ArchiveControlProps) {
     <form action={archiveClient} className="flex flex-col gap-3 border border-danger p-3">
       <input type="hidden" name="clientId" value={clientId} />
       <p>{messages.archiveConfirm}</p>
-      <button type="submit" className="min-h-12 bg-danger font-semibold text-white">
-        {messages.archiveYes}
-      </button>
+      <Button tone="danger">{messages.archiveYes}</Button>
       <button type="button" onClick={() => setArmed(false)} className="min-h-12 font-semibold">
         {messages.back}
       </button>

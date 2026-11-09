@@ -1,11 +1,21 @@
 export type Locale = "ky" | "ru";
-export type MemberRole = "owner" | "agent";
+export type MemberRole = "owner" | "agent" | "warehouse";
 
 export interface Membership {
   tenantId: string;
   tenantName: string;
   role: MemberRole;
   locale: Locale;
+}
+
+export type OrderStatus = "open" | "in_delivery" | "completed" | "cancelled";
+
+export interface OrderSummary {
+  id: string;
+  clientName: string;
+  status: OrderStatus;
+  scheduledOn: string | null;
+  heldDays: number | null;
 }
 
 export interface ClientSummary {
@@ -37,4 +47,22 @@ export interface NotePhraseOption {
   id: string;
   body: string;
   useCount: number;
+}
+
+export interface ProductSummary {
+  id: string;
+  name: string;
+  available: number;
+}
+
+export interface ServiceDate {
+  productId: string;
+  productName: string;
+  nextOn: string;
+}
+
+export interface CompanyMember {
+  id: string;
+  role: MemberRole;
+  removedAt: string | null;
 }
