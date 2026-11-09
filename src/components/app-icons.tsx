@@ -6,28 +6,29 @@ const base = "size-4 shrink-0";
 
 export function PhoneIcon({ className = base }: IconProps) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M6.2 3.8c.4-.4 1-.5 1.5-.3l1.6.6c.5.2.8.7.7 1.2l-.3 1.5a1.2 1.2 0 0 1-.7.9l-.9.4a8.2 8.2 0 0 0 3.7 3.7l.4-.9a1.2 1.2 0 0 1 .9-.7l1.5-.3c.5-.1 1 .2 1.2.7l.6 1.6c.2.5.1 1.1-.3 1.5l-.8.8c-.5.5-1.2.7-1.9.5A12.4 12.4 0 0 1 4.9 6.5c-.2-.7 0-1.4.5-1.9l.8-.8Z"
+        d="M8.5 3.5h7A2.5 2.5 0 0 1 18 6v12a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 18V6A2.5 2.5 0 0 1 8.5 3.5Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.75"
         strokeLinejoin="round"
       />
+      <path d="M11 17.5h2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
     </svg>
   );
 }
 
 export function WhatsAppIcon({ className = base }: IconProps) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={className}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M10 3.4a6.6 6.6 0 0 0-5.7 9.9L3.5 16.5l3.3-.8A6.6 6.6 0 1 0 10 3.4Z"
+        d="M12 3.75a8.25 8.25 0 0 0-7.05 12.55L4 20.25l4.1-1.05A8.25 8.25 0 1 0 12 3.75Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.75"
         strokeLinejoin="round"
       />
       <path
-        d="M7.6 8.2c.2-.4.4-.4.6-.4h.4c.2 0 .3 0 .4.3l.5 1.2c.1.2 0 .3-.1.5l-.3.4c-.1.1-.1.3 0 .4.4.6 1 1.1 1.6 1.4.2.1.3.1.4 0l.5-.4c.1-.1.3-.1.4 0l1.1.6c.2.1.3.2.3.4v.4c0 .2 0 .4-.4.6-.3.2-.7.3-1.1.2A5 5 0 0 1 7.4 9c0-.4.1-.7.2-.8Z"
+        d="M9.2 8.9c.15-.35.35-.4.55-.4h.35c.15 0 .3 0 .35.3l.45 1.15c.05.2 0 .3-.1.45l-.25.35c-.1.1-.1.25 0 .4.35.55.9 1.05 1.45 1.35.15.1.3.1.4 0l.45-.35c.1-.1.25-.1.4 0l1 .55c.2.1.25.2.25.4v.35c0 .2 0 .35-.35.55-.3.15-.65.25-1 .15A4.6 4.6 0 0 1 9 9.7c0-.35.05-.65.2-.8Z"
         fill="currentColor"
       />
     </svg>
@@ -172,10 +173,10 @@ export function GoogleIcon({ className = base }: IconProps) {
 
 export function AppleIcon({ className = base }: IconProps) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className={className}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={className}>
       <path
         fill="currentColor"
-        d="M13.7 3.4c-.7.8-1.8 1.4-2.9 1.3-.1-1.1.4-2.2 1-2.9.7-.8 1.9-1.4 2.9-1.4.1 1.1-.3 2.2-1 3Zm2.7 8c0 2.4 2.1 3.2 2.1 3.2-.1.4-.7 1.5-1.5 2.3-.8.8-1.6 1.6-2.8 1.6-1.1 0-1.5-.7-2.9-.7s-1.8.7-2.9.7c-1.2 0-2.1-.9-2.9-1.7C3.6 14.8 2.7 12 3.8 9.7c.6-1.2 1.7-2 2.9-2 1.1 0 2 .8 2.9.8s2.1-.9 3.5-.8c.6 0 2.2.2 3.2 1.7-.1.1-1.9 1.1-1.9 3.6Z"
+        d="M16.365 12.24c-.026-2.566 2.095-3.8 2.19-3.857-1.195-1.747-3.055-1.987-3.715-2.014-1.582-.16-3.088.932-3.89.932-.818 0-2.07-.91-3.405-.886-1.752.026-3.368 1.018-4.266 2.586-1.82 3.155-.465 7.826 1.308 10.39.867 1.254 1.9 2.662 3.258 2.612 1.307-.053 1.8-.845 3.38-.845 1.566 0 2.023.845 3.405.818 1.407-.026 2.298-1.278 3.156-2.54 1.002-1.46 1.414-2.874 1.438-2.946-.031-.014-2.76-1.06-2.79-4.25ZM14.6 5.49c.72-.874 1.206-2.09 1.074-3.3-1.038.042-2.295.692-3.04 1.566-.666.774-1.25 2.01-1.094 3.196 1.156.09 2.34-.588 3.06-1.462Z"
       />
     </svg>
   );
